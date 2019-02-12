@@ -22,10 +22,10 @@ class Reversibility:
     REVERSIBLE = 1
     
 class RLP:
-    Default = 0.83
-    Inhib = 0.08
-    Activ = 0.08
-    Inhibactiv = 0.01
+    Default = 0.7
+    Inhib = 0.13
+    Activ = 0.13
+    Inhibactiv = 0.04
 
 
 def pickReactionType():
@@ -47,13 +47,12 @@ def pickReactionType():
 # reactionList = [nSpecies, reaction, ....]
 # reaction = [reactionType, [list of reactants], [list of product], rateConstant]
 def generateReactionList(Parameters):
-#    connected = False
     
     reactionList = copy.deepcopy(Parameters.realReactionList)
     
     for r in range(Parameters.nr):
-        rct_id = reactionList[3]
-        prd_id = reactionList[4]
+        rct_id = reactionList[r][3]
+        prd_id = reactionList[r][4]
         
         regType = pickReactionType()
         
@@ -80,12 +79,60 @@ def generateReactionList(Parameters):
             if len(reg_id) == 0:
                 regType = RegulationType.DEFAULT
             
-        reactionList[r][1] == regType
-        reactionList[r][5] == act_id
-        reactionList[r][6] == inhib_id
+        reactionList[r][1] = regType
+        reactionList[r][5] = act_id
+        reactionList[r][6] = inhib_id
 
     return reactionList
     
+
+def generateMutation(Parameters, rl, model):
+
+    reactionList = copy.deepcopy(rl)
+    
+    r = te.loada(model)
+    r.steadyState()
+        
+    tempdiff = np.max(np.abs(Parameters.realConcCC - 
+            r.getScaledConcentrationControlCoefficientMatrix()), axis=0)
+    
+    r_idx = np.random.choice(np.arange(Parameters.nr), p=np.divide(tempdiff,np.sum(tempdiff)))
+    
+    rct_id = reactionList[r_idx][3]
+    prd_id = reactionList[r_idx][4]
+    
+    regType = pickReactionType()
+    
+    if regType == RegulationType.DEFAULT:
+        act_id = []
+        inhib_id = []
+    elif regType == RegulationType.INHIBITION:
+        act_id = []
+        inhib_id = np.random.choice(np.delete(np.arange(Parameters.ns), 
+                     np.unique(np.concatenate([rct_id, prd_id]))), size=1).tolist()
+        if len(inhib_id) == 0:
+            regType = RegulationType.DEFAULT
+    elif regType == RegulationType.ACTIVATION:
+        act_id = np.random.choice(np.delete(np.arange(Parameters.ns), 
+                     np.unique(np.concatenate([rct_id, prd_id]))), size=1).tolist()
+        inhib_id = []
+        if len(act_id) == 0:
+            regType = RegulationType.DEFAULT
+    else:
+        reg_id = np.random.choice(np.delete(np.arange(Parameters.ns), 
+                     np.unique(np.concatenate([rct_id, prd_id]))), size=2)
+        act_id = [reg_id[0]]
+        inhib_id = [reg_id[1]]
+        if len(reg_id) == 0:
+            regType = RegulationType.DEFAULT
+        
+    reactionList[r_idx][1] == regType
+    reactionList[r_idx][5] == act_id
+    reactionList[r_idx][6] == inhib_id
+
+    return reactionList
+
+
 
 # Include boundary and floating species
 # Returns a list:
