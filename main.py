@@ -32,15 +32,15 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched'
-        modelType = 'FFL_r' 
+        modelType = 'Linear_i' 
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 300 
+        n_gen = 20 
         # Size of output ensemble
-        ens_size = 100 
+        ens_size = 20
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10) 
         # Number of models to mutate
@@ -90,12 +90,13 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False 
         # Path to save the output
-        EXPORT_PATH = './output_ffl' 
+        EXPORT_PATH = './OUTPUT_LINEAR_I' 
         
         # Flag to run algorithm
-        RUN = False
+        RUN = True
         
-    
+
+#%%    
         # Using one of the test models
         realModel = ioutils.testModels(modelType)
         
@@ -134,6 +135,11 @@ if __name__ == '__main__':
         nr = realRR.getNumReactions() # Number of reactions
         
         realReactionList = ng.generateReactionListFromAntimony(realModel)
+        
+        n_range = range(1, n_gen)
+        ens_range = range(ens_size)
+        mut_range = range(mut_size)
+        r_range = range(nr)
     
 #%%
         
@@ -163,11 +169,6 @@ if __name__ == '__main__':
         med_dist = []
         top5_dist = []
         
-        n_range = range(1, Parameters.n_gen)
-        ens_range = range(Parameters.ens_size)
-        mut_range = range(Parameters.mut_size)
-        r_range = range(Parameters.nr)
-        
     #%%
         t1 = time.time()
         
@@ -189,7 +190,7 @@ if __name__ == '__main__':
         breakFlag = False
         
         # TODO: Remove for loop
-        for n in n_range:
+        for n in Parameters.n_range:
             minind = np.argsort(ens_dist)[:Parameters.pass_size]
             tarind = np.delete(np.arange(Parameters.ens_size), minind)
             mut_p = 1/ens_dist[tarind]/np.sum(1/ens_dist[tarind])
@@ -198,16 +199,20 @@ if __name__ == '__main__':
             mut_ind = np.append(mut_ind, minind)
             mut_ind_inv = np.setdiff1d(np.arange(Parameters.ens_size), mut_ind)
             
-            eval_dist, eval_model, eval_rl = core.mutate_and_evaluate(ens_model[mut_ind], 
-                                                                 ens_dist[mut_ind], 
-                                                                 ens_rl[mut_ind])
+            eval_dist, eval_model, eval_rl, rl_track = core.mutate_and_evaluate(Parameters,
+                                                                      ens_model[mut_ind], 
+                                                                      ens_dist[mut_ind], 
+                                                                      ens_rl[mut_ind],
+                                                                      rl_track)
             ens_model[mut_ind] = eval_model
             ens_dist[mut_ind] = eval_dist
             ens_rl[mut_ind] = eval_rl
             
-            rnd_dist, rnd_model, rnd_rl = core.random_gen(ens_model[mut_ind_inv], 
-                                                     ens_dist[mut_ind_inv], 
-                                                     ens_rl[mut_ind_inv])
+            rnd_dist, rnd_model, rnd_rl, rl_track = core.random_gen(Parameters,
+                                                          ens_model[mut_ind_inv], 
+                                                          ens_dist[mut_ind_inv], 
+                                                          ens_rl[mut_ind_inv],
+                                                          rl_track)
             ens_model[mut_ind_inv] = rnd_model
             ens_dist[mut_ind_inv] = rnd_dist
             ens_rl[mut_ind_inv] = rnd_rl
