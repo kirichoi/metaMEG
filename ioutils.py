@@ -122,6 +122,30 @@ def testModels(modelType):
         S3 = 0
         S4 = 0
         """
+    elif modelType == 'Linear_i':
+        # Linear    
+        realModel = """
+        var S1, S2, S3, S4;
+        const S0, S5;
+        J0: S0 -> S1; k0*S0/(1 + S4);
+        J1: S1 -> S2; k1*S1;
+        J2: S2 -> S3; k2*S2;
+        J3: S3 -> S4; k3*S3;
+        J4: S4 -> S5; k4*S4;
+       
+        k0 = 0.285822003905
+        k1 = 0.571954691013
+        k2 = 0.393173236422
+        k3 = 0.75830845241
+        k4 = 0.27503984992
+      
+        S0 = 4
+        S5 = 5
+        S1 = 1
+        S2 = 1
+        S3 = 1
+        S4 = 1
+        """
     elif modelType == 'Nested':
         # Nested
         realModel = """
