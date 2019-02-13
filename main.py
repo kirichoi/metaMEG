@@ -18,6 +18,7 @@ import plotting as pt
 
 if __name__ == '__main__':
     roadrunner.Config.setValue(roadrunner.Config.ROADRUNNER_DISABLE_WARNINGS, 3)
+    roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, True)
 
 
 #%% Settings
@@ -38,23 +39,23 @@ if __name__ == '__main__':
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 20 
+        n_gen = 40 
         # Size of output ensemble
-        ens_size = 20
+        ens_size = 40
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10) 
         # Number of models to mutate
         mut_size = int(ens_size/2) 
         # Maximum iteration allowed for random generation
-        maxIter_gen = 1000 
+        maxIter_gen = 20
         # Maximum iteration allowed for mutation
-        maxIter_mut = 1000 
+        maxIter_mut = 20 
         
         
         # Optimizer settings ==================================================
         
         # Maximum iteration allowed for optimizer
-        optiMaxIter = 100 
+        optiMaxIter = 100
         optiTol = 1.
         optiPolish = False
         # Weight for control coefficients when calculating the distance
@@ -90,7 +91,7 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False 
         # Path to save the output
-        EXPORT_PATH = './OUTPUT_LINEAR_I' 
+        EXPORT_PATH = './OUTPUT_LINEAR_I_LONG' 
         
         # Flag to run algorithm
         RUN = True
@@ -130,6 +131,8 @@ if __name__ == '__main__':
         realConcCCcol = realConcCC.colnames
         realConcCC = realConcCC[np.argsort(realConcCCrow)]
         realConcCC = realConcCC[:,np.argsort(realConcCCcol)]
+        
+        realFlux = realFlux[np.argsort(realRR.getFloatingSpeciesIds())]
         
         ns = realNumBoundary + realNumFloating # Number of species
         nr = realRR.getNumReactions() # Number of reactions
