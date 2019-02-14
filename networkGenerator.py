@@ -22,20 +22,43 @@ class Reversibility:
     REVERSIBLE = 1
     
 class RLP:
-    Default = 0.7
-    Inhib = 0.13
-    Activ = 0.13
-    Inhibactiv = 0.04
+    Default = 0.5
+    Inhib = 0.19
+    Activ = 0.19
+    Inhibactiv = 0.12
 
 
-def pickReactionType():
+def pickReactionType(remove=None):
 
-    rt = np.random.random()
-    if rt < RLP.Default:
+    if remove != None:
+        if remove == RegulationType.DEFAULT:
+            Default = 0
+            Inhib = RLP.Inhib + RLP.Default/3
+            Activ = RLP.Activ + RLP.Default/3
+        elif remove == RegulationType.INHIBITION:
+            Default = RLP.Default + RLP.Inhib/3
+            Inhib = 0
+            Activ = RLP.Activ + RLP.Inhib/3
+        elif remove == RegulationType.ACTIVATION:
+            Default = RLP.Default + RLP.Activ/3
+            Inhib = RLP.Inhib + RLP.Activ/3
+            Activ = 0
+        elif remove == RegulationType.INIHIBITION_ACTIVATION:
+            Default = RLP.Default + RLP.Inhibactiv/3
+            Inhib = RLP.Inhib + RLP.Inhibactiv/3
+            Activ = RLP.Activ + RLP.Inhibactiv/3
+    else:
+        Default = RLP.Default
+        Inhib = RLP.Inhib
+        Activ = RLP.Activ
+    
+    rt = np.random.random()    
+        
+    if rt < Default:
         regType = RegulationType.DEFAULT
-    elif (rt >= RLP.Default) and (rt < RLP.Default + RLP.Inhib):
+    elif (rt >= Default) and (rt < Default + Inhib):
         regType = RegulationType.INHIBITION
-    elif (rt >= RLP.Default + RLP.Inhib) and (rt < RLP.Default + RLP.Inhib + RLP.Activ):
+    elif (rt >= Default + Inhib) and (rt < Default + Inhib + Activ):
         regType = RegulationType.ACTIVATION
     else:
         regType = RegulationType.INIHIBITION_ACTIVATION
@@ -50,9 +73,9 @@ def generateReactionList(Parameters):
     
     reactionList = copy.deepcopy(Parameters.realReactionList)
     
-    for r in range(Parameters.nr):
-        rct_id = reactionList[r][3]
-        prd_id = reactionList[r][4]
+    for r_idx in range(Parameters.nr):
+        rct_id = reactionList[r_idx][3]
+        prd_id = reactionList[r_idx][4]
         
         regType = pickReactionType()
         
@@ -61,13 +84,13 @@ def generateReactionList(Parameters):
             inhib_id = []
         elif regType == RegulationType.INHIBITION:
             act_id = []
-            inhib_id = np.random.choice(np.delete(np.arange(Parameters.ns), 
-                         np.unique(np.concatenate([rct_id, prd_id]))), size=1).tolist()
+            inhib_id = np.unique(np.random.choice(np.delete(np.arange(Parameters.ns), 
+                         np.unique(np.concatenate([rct_id, prd_id]))), size=np.random.randint(1,3))).tolist()
             if len(inhib_id) == 0:
                 regType = RegulationType.DEFAULT
         elif regType == RegulationType.ACTIVATION:
-            act_id = np.random.choice(np.delete(np.arange(Parameters.ns), 
-                         np.unique(np.concatenate([rct_id, prd_id]))), size=1).tolist()
+            act_id = np.unique(np.random.choice(np.delete(np.arange(Parameters.ns), 
+                         np.unique(np.concatenate([rct_id, prd_id]))), size=np.random.randint(1,3))).tolist()
             inhib_id = []
             if len(act_id) == 0:
                 regType = RegulationType.DEFAULT
@@ -79,9 +102,9 @@ def generateReactionList(Parameters):
             if len(reg_id) == 0:
                 regType = RegulationType.DEFAULT
             
-        reactionList[r][1] = regType
-        reactionList[r][5] = act_id
-        reactionList[r][6] = inhib_id
+        reactionList[r_idx][1] = regType
+        reactionList[r_idx][5] = act_id
+        reactionList[r_idx][6] = inhib_id
 
     return reactionList
     
@@ -97,24 +120,23 @@ def generateMutation(Parameters, rl, model):
             r.getScaledConcentrationControlCoefficientMatrix()), axis=0)
     
     r_idx = np.random.choice(np.arange(Parameters.nr), p=np.divide(tempdiff,np.sum(tempdiff)))
-    
     rct_id = reactionList[r_idx][3]
     prd_id = reactionList[r_idx][4]
     
-    regType = pickReactionType()
+    regType = pickReactionType(reactionList[r_idx][1])
     
     if regType == RegulationType.DEFAULT:
         act_id = []
         inhib_id = []
     elif regType == RegulationType.INHIBITION:
         act_id = []
-        inhib_id = np.random.choice(np.delete(np.arange(Parameters.ns), 
-                     np.unique(np.concatenate([rct_id, prd_id]))), size=1).tolist()
+        inhib_id = np.unique(np.random.choice(np.delete(np.arange(Parameters.ns), 
+                     np.unique(np.concatenate([rct_id, prd_id]))), size=np.random.randint(1,3))).tolist()
         if len(inhib_id) == 0:
             regType = RegulationType.DEFAULT
     elif regType == RegulationType.ACTIVATION:
-        act_id = np.random.choice(np.delete(np.arange(Parameters.ns), 
-                     np.unique(np.concatenate([rct_id, prd_id]))), size=1).tolist()
+        act_id = np.unique(np.random.choice(np.delete(np.arange(Parameters.ns), 
+                     np.unique(np.concatenate([rct_id, prd_id]))), size=np.random.randint(1,3))).tolist()
         inhib_id = []
         if len(act_id) == 0:
             regType = RegulationType.DEFAULT
@@ -126,9 +148,9 @@ def generateMutation(Parameters, rl, model):
         if len(reg_id) == 0:
             regType = RegulationType.DEFAULT
         
-    reactionList[r_idx][1] == regType
-    reactionList[r_idx][5] == act_id
-    reactionList[r_idx][6] == inhib_id
+    reactionList[r_idx][1] = regType
+    reactionList[r_idx][5] = act_id
+    reactionList[r_idx][6] = inhib_id
 
     return reactionList
 
@@ -518,7 +540,7 @@ def generateAntimony(floatingIds, boundaryIds, stt1, stt2, reactionList, boundar
     # List rate constants
     antStr = antStr + '\n'
     Klist_f = [item for sublist in Klist for item in sublist]
-#    Klist_f = np.unique(Klist_f)
+    
     for i in range(len(Klist_f)):
         if Klist_f[i].startswith('Kf'):
             antStr = antStr + Klist_f[i] + ' = 1\n'
@@ -551,13 +573,13 @@ def generateParameterBoundary(glgp):
     
     for i in range(len(glgp)):
         if glgp[i].startswith('Kf'):
-            pBound.append((1e-2, 10.))
+            pBound.append((1e-3, 100.))
         elif glgp[i].startswith('Kr'):
-            pBound.append((1e-2, 10.))
+            pBound.append((1e-3, 100.))
         elif glgp[i].startswith('Ka'):
-            pBound.append((1e-2, 10.))
+            pBound.append((1e-3, 100.))
         elif glgp[i].startswith('Ki'):
-            pBound.append((1e-2, 10.))
+            pBound.append((1e-3, 100.))
 
     return pBound
     
