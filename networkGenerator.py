@@ -114,7 +114,7 @@ def generateMutation(Parameters, rl, model):
     reactionList = copy.deepcopy(rl)
     
     r = te.loada(model)
-    r.steadyState()
+#    r.steadyStateApproximate()
         
     tempdiff = np.max(np.abs(Parameters.realConcCC - 
             r.getScaledConcentrationControlCoefficientMatrix()), axis=0)
