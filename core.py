@@ -83,7 +83,10 @@ def initialize(Parameters):
             counts = 0
             countf = 0
             
-            r.steadyState()
+            ss = r.steadyStateSolver
+            ss.approx_maximum_steps = 5
+            
+            r.steadyStateApproximate()
             
             p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
             res = scipy.optimize.differential_evolution(f1, 
@@ -101,8 +104,11 @@ def initialize(Parameters):
                 # the obj func value from optimizer
                 r = te.loada(antStr)
                 r.setValues(r.getGlobalParameterIds(), res.x)
+                
+                ss = r.steadyStateSolver
+                ss.approx_maximum_steps = 5
                     
-                r.steadyState()
+                r.steadyStateApproximate()
                 SS_i = r.getFloatingSpeciesConcentrations()
                 
                 if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
@@ -131,7 +137,6 @@ def initialize(Parameters):
                         rl_track.append(rl)
                         
                         numGoodModels = numGoodModels + 1
-                        print(numGoodModels)
         except:
             numBadModels = numBadModels + 1
         antimony.clearPreviousLoads()
@@ -180,9 +185,11 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
             try:
                 r = te.loada(antStr)
                 
-                r.steadyState()
+                ss = r.steadyStateSolver
+                ss.approx_maximum_steps = 5
                 
-                print("pass1_1")
+                r.steadyStateApproximate()
+                
                 p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
                 res = scipy.optimize.differential_evolution(f1, 
                                                             args=(r, Parameters.realConcCC, ), 
@@ -191,7 +198,6 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                                                             tol=Parameters.optiTol,
                                                             polish=Parameters.optiPolish,
                                                             seed=Parameters.r_seed)
-                print("pass1_2")
                 if not res.success:
                     eval_dist[m] = listdist[m]
                     eval_model[m] = listantStr[m]
@@ -200,7 +206,10 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                     r = te.loada(antStr)
                     r.setValues(r.getGlobalParameterIds(), res.x)
                     
-                    r.steadyState()
+                    ss = r.steadyStateSolver
+                    ss.approx_maximum_steps = 5
+                    
+                    r.steadyStateApproximate()
                     SS_i = r.getFloatingSpeciesConcentrations()
                     
                     if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
@@ -277,11 +286,12 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                             stt[1], stt[2], rl, boundary_init=Parameters.realBoundaryVal)
             try:
                 r = te.loada(antStr)
-
-                r.steadyState()
                 
-                print("pass2_1")
-                print(rl)
+                ss = r.steadyStateSolver
+                ss.approx_maximum_steps = 5
+
+                r.steadyStateApproximate()
+                
                 p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
                 res = scipy.optimize.differential_evolution(f1, 
                                                             args=(r, Parameters.realConcCC, ), 
@@ -290,7 +300,6 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                                                             tol=Parameters.optiTol,
                                                             polish=Parameters.optiPolish, 
                                                             seed=Parameters.r_seed)
-                print("pass2_2")
                 # Failed to find solution
                 if not res.success:
                     rnd_dist[l] = listDist[l]
@@ -300,7 +309,10 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                     r = te.loada(antStr)
                     r.setValues(r.getGlobalParameterIds(), res.x)
                     
-                    r.steadyState()
+                    ss = r.steadyStateSolver
+                    ss.approx_maximum_steps = 5
+                    
+                    r.steadyStateApproximate()
                     SS_i = r.getFloatingSpeciesConcentrations()
                     
                     if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
