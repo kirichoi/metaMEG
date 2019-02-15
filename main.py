@@ -39,9 +39,9 @@ if __name__ == '__main__':
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 20
+        n_gen = 100
         # Size of output ensemble
-        ens_size = 20
+        ens_size = 100
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10) 
         # Number of models to mutate
@@ -240,6 +240,8 @@ if __name__ == '__main__':
         #%%
         # Collect models
         minInd, log_dens = analysis.selectWithKernalDensity(model_top, dist_top)
+        if len(minInd[0]) == 0:
+            minInd = np.array([[len(model_top) - 1]])
         model_col = model_top[:minInd[0][0]]
         dist_col = dist_top[:minInd[0][0]]
             
