@@ -18,7 +18,7 @@ import plotting as pt
 
 if __name__ == '__main__':
     roadrunner.Config.setValue(roadrunner.Config.ROADRUNNER_DISABLE_WARNINGS, 3)
-    roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, True)
+#    roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, True)
 
 
 #%% Settings
@@ -39,9 +39,9 @@ if __name__ == '__main__':
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 40 
+        n_gen = 20
         # Size of output ensemble
-        ens_size = 40
+        ens_size = 20
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10) 
         # Number of models to mutate

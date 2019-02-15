@@ -25,14 +25,13 @@ def f1(k_list, *args):
     args[0].setValues(args[0].getGlobalParameterIds(), k_list)
     
     try:
-        args[0].steadyState()
+        args[0].steadyStateApproximate()
         objCCC = args[0].getScaledConcentrationControlCoefficientMatrix()
         objCCC[np.abs(objCCC) < 1e-16] = 0 # Set small values to zero
 #        objFlux = args[0].getReactionRates()
 #        objFlux[np.abs(objFlux) < 1e-16] = 0 # Set small values to zero
 #        objFCC = args[0].getScaledFluxControlCoefficientMatrix()
 #        objFCC[np.abs(objFCC) < 1e-16] = 0 # Set small values to zero
-        
         dist_obj = ((np.linalg.norm(args[1] - objCCC))/
                     (1 + np.sum(np.equal(np.sign(np.array(args[1])), np.sign(np.array(objCCC))))))
                     
@@ -282,6 +281,7 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                 r.steadyState()
                 
                 print("pass2_1")
+                print(rl)
                 p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
                 res = scipy.optimize.differential_evolution(f1, 
                                                             args=(r, Parameters.realConcCC, ), 
