@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched'
-        modelType = 'Linear_i' 
+        modelType = 'FFL_r'
         
         
         # General settings ====================================================
@@ -43,13 +43,16 @@ if __name__ == '__main__':
         # Size of output ensemble
         ens_size = 100
         # Number of models passed on the next generation without mutation
-        pass_size = int(ens_size/10) 
+        pass_size = int(ens_size/10)
         # Number of models to mutate
-        mut_size = int(ens_size/2) 
+        mut_size = int(ens_size/2)
         # Maximum iteration allowed for random generation
         maxIter_gen = 20
         # Maximum iteration allowed for mutation
-        maxIter_mut = 20 
+        maxIter_mut = 20
+        # Set conserved moiety
+        conservedMoiety = False
+
         
         
         # Optimizer settings ==================================================
@@ -59,56 +62,73 @@ if __name__ == '__main__':
         optiTol = 1.
         optiPolish = False
         # Weight for control coefficients when calculating the distance
-        w1 = 16 
+        w1 = 16
         # Weight for steady-state and flux when calculating the distance
-        w2 = 1.0 
+        w2 = 1.0
+        FLUX = False
         
         
         # Random settings =====================================================
         
         # random seed
-        r_seed = 123123 
+        r_seed = 123123
         # Flag for adding Gaussian noise to steady-state and control coefficiant values
-        NOISE = False 
+        NOISE = False
         # Standard deviation of Gaussian noise
-        ABS_NOISE_STD = 0.01 
+        ABS_NOISE_STD = 0.01
         # Standard deviation of Gaussian noise
-        REL_NOISE_STD = 0.1 
+        REL_NOISE_STD = 0.1
         
         
         # Plotting settings ===================================================
         
         # Flag for plots
-        PLOT = True 
+        PLOT = True
         # Flag for saving plots
-        SAVE_PLOT = True 
+        SAVE_PLOT = True
         
         
         # Data settings =======================================================
         
+        # Flag for collecting models
+        EXPORT_ALL_MODELS = True
         # Flag for saving collected models
-        EXPORT_OUTPUT = True 
+        EXPORT_OUTPUT = True
         # Flag for saving current settings
-        EXPORT_SETTINGS = False 
+        EXPORT_SETTINGS = False
         # Path to save the output
-        EXPORT_PATH = './OUTPUT_LINEAR_I_LONG' 
+        EXPORT_PATH = './USE/output_FFL_r_noflux'
         
         # Flag to run algorithm
-        RUN = True
+        RUN = False
         
 
 #%%    
+        if conservedMoiety:
+            roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, True)
+
+        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX, True)
+        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_MAX_STEPS, 5)
+        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TIME, 10000)
+#        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TOL, 1e-3)
+
+        
         # Using one of the test models
         realModel = ioutils.testModels(modelType)
         
-        realRR = te.loada(realModel)
+        if os.path.exists(realModel):
+            realRR = te.loadSBMLModel(realModel)
+        else:
+            realRR = te.loada(realModel)
         
         realNumBoundary = realRR.getNumBoundarySpecies()
         realNumFloating = realRR.getNumFloatingSpecies()
         realFloatingIds = np.sort(realRR.getFloatingSpeciesIds())
         realFloatingIdsInd = list(map(int, [s.strip('S') for s in realRR.getFloatingSpeciesIds()]))
+        realFloatingIdsInd.sort()
         realBoundaryIds = np.sort(realRR.getBoundarySpeciesIds())
         realBoundaryIdsInd = list(map(int,[s.strip('S') for s in realRR.getBoundarySpeciesIds()]))
+        realBoundaryIdsInd.sort()
         realBoundaryVal = realRR.getBoundarySpeciesConcentrations()
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
@@ -120,6 +140,9 @@ if __name__ == '__main__':
         realRR.steadyState()
         realFluxCC = realRR.getScaledFluxControlCoefficientMatrix()
         realConcCC = realRR.getScaledConcentrationControlCoefficientMatrix()
+        
+        realFluxCC[np.abs(realFluxCC) < 1e-12] = 0
+        realConcCC[np.abs(realConcCC) < 1e-12] = 0
         
         # Ordering
         realFluxCCrow = realFluxCC.rownames
@@ -224,15 +247,15 @@ if __name__ == '__main__':
             dist_top = ens_dist[dist_top_ind]
             model_top = ens_model[dist_top_ind]
             
-            print("In generation: " + str(n + 1))
-            print("Minimum distance: " + str(dist_top[0]))
-            print("Average distance: " + str(np.average(dist_top)))
             best_dist.append(dist_top[0])
             avg_dist.append(np.average(dist_top))
             med_dist.append(np.median(dist_top))
             top5_dist.append(np.average(np.unique(dist_top)[:int(0.05*Parameters.ens_size)]))
-            
-    
+            print("In generation: " + str(n + 1))
+            print("Minimum distance: " + str(best_dist[-1]))
+            print("Top 5 distance: " + str(top5_dist[-1]))
+            print("Average distance: " + str(avg_dist[-1]))
+
         # Check run time
         t2 = time.time()
         print(t2 - t1)
@@ -242,6 +265,10 @@ if __name__ == '__main__':
         minInd, log_dens = analysis.selectWithKernalDensity(model_top, dist_top)
         if len(minInd[0]) == 0:
             minInd = np.array([[len(model_top) - 1]])
+
+        if Parameters.EXPORT_ALL_MODELS:
+            minInd = np.array([[len(model_top) - 1]])
+
         model_col = model_top[:minInd[0][0]]
         dist_col = dist_top[:minInd[0][0]]
             
