@@ -98,101 +98,58 @@ def testModels(modelType):
     :returns: Antimony string
     """
     
-    if modelType == 'Linear':
+    if modelType == 'Linear_m':
         # Linear    
         realModel = """
         var S1, S2, S3, S4;
         const S0, S5;
-        J0: S0 -> S1; k0*S0;
-        J1: S1 -> S2; k1*S1;
-        J2: S2 -> S3; k2*S2;
-        J3: S3 -> S4; k3*S3;
-        J4: S4 -> S5; k4*S4;
+        J0: S0 -> S1; Kf0*S0/(1 + S0);
+        J1: S1 -> S2; Kf1*S1/(1 + S1);
+        J2: S2 -> S3; Kf2*S2/(1 + S2);
+        J3: S3 -> S4; Kf3*S3/(1 + S3);
+        J4: S4 -> S5; Kf4*S4/(1 + S4);
        
-        k0 = 0.285822003905
-        k1 = 0.571954691013
-        k2 = 0.393173236422
-        k3 = 0.75830845241
-        k4 = 0.27503984992
+        Kf0 = 0.285822003905
+        Kf1 = 0.571954691013
+        Kf2 = 0.393173236422
+        Kf3 = 0.75830845241
+        Kf4 = 0.27503984992
        
-        S0 = 4
+        S0 = 3
         S5 = 5
         S1 = 1
         S2 = 1
         S3 = 1
         S4 = 1
         """
-    elif modelType == 'Linear_i':
+    elif modelType == 'Linear_r':
         # Linear    
         realModel = """
         var S1, S2, S3, S4;
         const S0, S5;
-        J0: S0 -> S1; k0*S0/(1 + S4);
-        J1: S1 -> S2; k1*S1;
-        J2: S2 -> S3; k2*S2;
-        J3: S3 -> S4; k3*S3;
-        J4: S4 -> S5; k4*S4;
+        J0: S0 -> S1; (Kf0*S0 - Kr0*S1)/(1 + S0 + S1);
+        J1: S1 -> S2; (Kf1*S1 - Kr1*S2)/(1 + S1 + S2);
+        J2: S2 -> S3; (Kf2*S2 - Kr2*S3)/(1 + S2 + S3);
+        J3: S3 -> S4; (Kf3*S3 - Kr3*S4)/(1 + S3 + S4);
+        J4: S4 -> S5; (Kf4*S4 - Kr4*S5)/(1 + S4 + S5);
        
-        k0 = 0.285822003905
-        k1 = 0.571954691013
-        k2 = 0.393173236422
-        k3 = 0.75830845241
-        k4 = 0.27503984992
-      
-        S0 = 4
+        Kf0 = 0.285822003905
+        Kf1 = 0.571954691013
+        Kf2 = 0.393173236422
+        Kf3 = 0.75830845241
+        Kf4 = 0.27503984992
+        Kr0 = 0.072790656829
+        Kr1 = 0.27828563882
+        Kr2 = 0.166906190765
+        Kr3 = 0.27057924345
+        Kr4 = 0.1026847763
+       
+        S0 = 3
         S5 = 5
         S1 = 1
         S2 = 1
         S3 = 1
         S4 = 1
-        """
-    elif modelType == 'Nested':
-        # Nested
-        realModel = """
-        var S1, S2, S3;
-        const S0, S4;
-        J0: S0 -> S1; k0*S0;
-        J1: S1 -> S2; k1*S1;
-        J2: S2 -> S1; k2*S2;
-        J3: S1 -> S3; k3*S1;
-        J4: S3 -> S1; k4*S3;
-        J5: S3 -> S4; k5*S3;
-       
-        k0 = 0.285822003905
-        k1 = 0.571954691013
-        k2 = 0.393173236422
-        k3 = 0.75830845241
-        k4 = 0.148522702962
-        k5 = 0.348927696783
-       
-        S0 = 3
-        S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
-        """
-    elif modelType == 'FFL':
-        # FFL    
-        realModel = """
-        var S1, S2, S3;
-        const S0, S4;
-        J0: S0 -> S1; k0*S0;
-        J1: S1 -> S2; k1*S1;
-        J2: S2 -> S3; k2*S2;
-        J3: S3 -> S4; k3*S3;
-        J4: S1 -> S3; k4*S1;
-       
-        k0 = 0.285822003905
-        k1 = 0.571954691013
-        k2 = 0.393173236422
-        k3 = 0.75830845241
-        k4 = 0.148522702962
-       
-        S0 = 3
-        S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
         """
     elif modelType == 'FFL_m':
         # FFL    
@@ -213,9 +170,9 @@ def testModels(modelType):
        
         S0 = 3
         S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
+        S1 = 1
+        S2 = 1
+        S3 = 1
         """
     elif modelType == 'FFL_r':
         # FFL    
@@ -241,11 +198,11 @@ def testModels(modelType):
        
         S0 = 3
         S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
+        S1 = 1
+        S2 = 1
+        S3 = 1
         """
-    elif modelType == 'FFL_a':
+    elif modelType == 'FFL_m_a':
         # FFL    
         realModel = """
         var S1, S2, S3;
@@ -265,11 +222,11 @@ def testModels(modelType):
        
         S0 = 3
         S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
+        S1 = 1
+        S2 = 1
+        S3 = 1
         """
-    elif modelType == 'FFL_i':
+    elif modelType == 'FFL_m_i':
         # I1FFL
         realModel = """
         var S1, S2, S3;
@@ -289,9 +246,9 @@ def testModels(modelType):
        
         S0 = 3
         S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
+        S1 = 1
+        S2 = 1
+        S3 = 1
         """
     elif modelType == 'FFL_r_a':
         # FFL    
@@ -318,9 +275,9 @@ def testModels(modelType):
        
         S0 = 3
         S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
+        S1 = 1
+        S2 = 1
+        S3 = 1
         """
     elif modelType == 'FFL_r_i':
         # FFL    
@@ -347,40 +304,9 @@ def testModels(modelType):
        
         S0 = 3
         S4 = 5
-        S1 = 0
-        S2 = 0
-        S3 = 0
-        """
-    elif modelType == 'Branched':
-        #Branched
-        realModel = """
-        var S1, S2, S3, S4, S5;
-        const S0, S6;
-        J0: S0 -> S1; k0*S0;
-        J1: S1 -> S2; k1*S1;
-        J2: S1 -> S3; k2*S1;
-        J3: S3 -> S4; k3*S3;
-        J4: S3 -> S5; k4*S3;
-        J5: S2 -> S6; k5*S2;
-        J6: S4 -> S6; k6*S4;
-        J7: S5 -> S6; k7*S5;
-       
-        k0 = 0.285822003905
-        k1 = 0.571954691013
-        k2 = 0.393173236422
-        k3 = 0.75830845241
-        k4 = 0.148522702962
-        k5 = 0.348927696783
-        k6 = 0.572677236248
-        k7 = 0.497208763889
-       
-        S0 = 4
-        S6 = 3
-        S1 = 0
-        S2 = 0
-        S3 = 0
-        S4 = 0
-        S5 = 0
+        S1 = 1
+        S2 = 1
+        S3 = 1
         """
     else:
         raise Exception("Requested model not found")
