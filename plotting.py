@@ -175,8 +175,10 @@ def plotNetworkEnsemble(path, index=None, threshold=0., scale=1.5):
     
     if index >= len(modelcontent):
         raise Exception("Specified index value is larger than the size of the list")
-    
+        
     net = npl.NetworkEnsemble(modelcontent[:index])
     net.plottingThreshold = threshold
     net.scale = scale
     net.drawWeightedDiagram()
+
+
