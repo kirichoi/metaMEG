@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched'
-        modelType = 'FFL_r'
+        modelType = 'FFL_r_a'
         
         
         # General settings ====================================================
@@ -97,10 +97,10 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False
         # Path to save the output
-        EXPORT_PATH = './USE/output_FFL_r_noflux'
+        EXPORT_PATH = './USE/output_FFL_r_a_noflux_mult_newobj'
         
         # Flag to run algorithm
-        RUN = False
+        RUN = True
         
 
 #%%    
@@ -108,8 +108,8 @@ if __name__ == '__main__':
             roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, True)
 
         roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX, True)
-        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_MAX_STEPS, 5)
-        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TIME, 10000)
+        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_MAX_STEPS, 100)
+        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TIME, 1000000)
 #        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TOL, 1e-3)
 
         
@@ -155,7 +155,7 @@ if __name__ == '__main__':
         realConcCC = realConcCC[np.argsort(realConcCCrow)]
         realConcCC = realConcCC[:,np.argsort(realConcCCcol)]
         
-        realFlux = realFlux[np.argsort(realRR.getFloatingSpeciesIds())]
+        realFlux = realFlux[np.argsort(realRR.getReactionIds())]
         
         ns = realNumBoundary + realNumFloating # Number of species
         nr = realRR.getNumReactions() # Number of reactions
@@ -206,12 +206,13 @@ if __name__ == '__main__':
         model_top = ens_model[dist_top_ind]
 #        rl_top = ens_rl[dist_top_ind]
         
-        print("Minimum distance: " + str(dist_top[0]))
-        print("Average distance: " + str(np.average(dist_top)))
         best_dist.append(dist_top[0])
         avg_dist.append(np.average(dist_top))
         med_dist.append(np.median(dist_top))
         top5_dist.append(np.average(np.unique(dist_top)[:int(0.05*Parameters.ens_size)]))
+        print("Minimum distance: " + str(best_dist[-1]))
+        print("Top 5 distance: " + str(top5_dist[-1]))
+        print("Average distance: " + str(avg_dist[-1]))
         
         breakFlag = False
         
@@ -324,5 +325,5 @@ if __name__ == '__main__':
                 ioutils.exportSettings(settings, path=EXPORT_PATH)
             
             if Parameters.EXPORT_OUTPUT:
-                ioutils.exportOutputs(model_col, dist_col, best_dist, avg_dist, 
+                ioutils.exportOutputs(model_col, dist_col, [best_dist, avg_dist, med_dist, top5_dist], 
                                       settings, t2-t1, rl_track, path=EXPORT_PATH)
