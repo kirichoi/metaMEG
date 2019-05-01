@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched'
-        modelType = 'FFL_r_a'
+        modelType = 'FFL_m_i'
         
         
         # General settings ====================================================
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False
         # Path to save the output
-        EXPORT_PATH = './USE/output_FFL_r_a_noflux_mult_newobj'
+        EXPORT_PATH = './USE/output_FFL_m_i'
         
         # Flag to run algorithm
         RUN = True
@@ -161,6 +161,7 @@ if __name__ == '__main__':
         nr = realRR.getNumReactions() # Number of reactions
         
         realReactionList = ng.generateReactionListFromAntimony(realModel)
+        knownReactionList = ng.generateKnownReactionListFromAntimony(realModel)
         
         n_range = range(1, n_gen)
         ens_range = range(ens_size)
