@@ -265,13 +265,13 @@ if __name__ == '__main__':
         # Collect models
         minInd, log_dens = analysis.selectWithKernalDensity(model_top, dist_top)
         if len(minInd[0]) == 0:
-            minInd = np.array([[len(model_top)]])
+            minInd = np.array([[len(model_top) - 1]])
 
         if Parameters.EXPORT_ALL_MODELS:
-            minInd = np.array([[len(model_top)]])
+            minInd = np.array([[len(model_top) - 1]])
 
-        model_col = model_top[:minInd[0][0]]
-        dist_col = dist_top[:minInd[0][0]]
+        model_col = model_top[:minInd[0][0] + 1]
+        dist_col = dist_top[:minInd[0][0] + 1]
             
     #%%
         EXPORT_PATH = os.path.abspath(os.path.join(os.getcwd(), Parameters.EXPORT_PATH))
