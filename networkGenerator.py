@@ -85,7 +85,7 @@ def generateReactionList(Parameters):
         elif regType == RegulationType.INHIBITION:
             act_id = []
             delList = np.concatenate([rct_id, prd_id])
-            delList = np.unique(np.append(delList, list(map(str, Parameters.realBoundaryIdsInd))))
+            delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
             cList = np.delete(np.arange(Parameters.ns), delList)
             if len(cList) == 0:
                 inhib_id = []
@@ -95,7 +95,7 @@ def generateReactionList(Parameters):
         elif regType == RegulationType.ACTIVATION:
             inhib_id = []
             delList = np.concatenate([rct_id, prd_id])
-            delList = np.unique(np.append(delList, list(map(str, Parameters.realBoundaryIdsInd))))
+            delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
             cList = np.delete(np.arange(Parameters.ns), delList)
             if len(cList) == 0:
                 act_id = []
@@ -104,7 +104,7 @@ def generateReactionList(Parameters):
                 act_id = np.unique(np.random.choice(cList, size=np.random.randint(1,3))).tolist()
         else:
             delList = np.concatenate([rct_id, prd_id])
-            delList = np.unique(np.append(delList, list(map(str, Parameters.realBoundaryIdsInd))))
+            delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
             cList = np.delete(np.arange(Parameters.ns), delList)
             if len(cList) < 2:
                 act_id = []
@@ -150,7 +150,7 @@ def generateMutation(Parameters, rl, model):
     elif regType == RegulationType.INHIBITION:
         act_id = []
         delList = np.concatenate([rct_id, prd_id])
-        delList = np.unique(np.append(delList, list(map(str, Parameters.realBoundaryIdsInd))))
+        delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
         cList = np.delete(np.arange(Parameters.ns), delList)
         if len(cList) == 0:
             inhib_id = []
@@ -160,7 +160,7 @@ def generateMutation(Parameters, rl, model):
     elif regType == RegulationType.ACTIVATION:
         inhib_id = []
         delList = np.concatenate([rct_id, prd_id])
-        delList = np.unique(np.append(delList, list(map(str, Parameters.realBoundaryIdsInd))))
+        delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
         cList = np.delete(np.arange(Parameters.ns), delList)
         if len(cList) == 0:
             act_id = []
@@ -169,7 +169,7 @@ def generateMutation(Parameters, rl, model):
             act_id = np.unique(np.random.choice(cList, size=np.random.randint(1,3))).tolist()
     else:
         delList = np.concatenate([rct_id, prd_id])
-        delList = np.unique(np.append(delList, list(map(str, Parameters.realBoundaryIdsInd))))
+        delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
         cList = np.delete(np.arange(Parameters.ns), delList)
         if len(cList) < 2:
             act_id = []
