@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched'
-        modelType = 'FFL_m_i'
+        modelType = 'Linear_m'
         
         
         # General settings ====================================================
@@ -52,7 +52,6 @@ if __name__ == '__main__':
         maxIter_mut = 20
         # Set conserved moiety
         conservedMoiety = False
-
         
         
         # Optimizer settings ==================================================
@@ -97,7 +96,7 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False
         # Path to save the output
-        EXPORT_PATH = './USE/output_FFL_m_i'
+        EXPORT_PATH = './USE/output_Linear_m_update'
         
         # Flag to run algorithm
         RUN = True
@@ -266,10 +265,10 @@ if __name__ == '__main__':
         # Collect models
         minInd, log_dens = analysis.selectWithKernalDensity(model_top, dist_top)
         if len(minInd[0]) == 0:
-            minInd = np.array([[len(model_top) - 1]])
+            minInd = np.array([[len(model_top)]])
 
         if Parameters.EXPORT_ALL_MODELS:
-            minInd = np.array([[len(model_top) - 1]])
+            minInd = np.array([[len(model_top)]])
 
         model_col = model_top[:minInd[0][0]]
         dist_col = dist_top[:minInd[0][0]]
