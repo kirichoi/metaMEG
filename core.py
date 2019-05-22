@@ -49,8 +49,9 @@ def f1(k_list, *args):
                             ((1 + np.sum(np.equal(np.sign(np.array(args[1])), np.sign(np.array(objCCC))))) +
                             (1 + np.sum(np.equal(np.sign(np.array(args[2])), np.sign(np.array(objFlux)))))))
             else:
-                dist_obj = ((np.linalg.norm(args[1] - objCCC))*(1 + args[1].size - np.sum(np.equal(
-                             np.sign(np.array(args[1])), np.sign(np.array(objCCC))))))
+                dist_obj = ((np.linalg.norm(args[1] - objCCC))*(1 + 
+                             np.sum(np.not_equal(np.sign(np.array(args[1])), 
+                                                 np.sign(np.array(objCCC))))))
                 
     except:
         countf += 1
@@ -148,16 +149,14 @@ def initialize(Parameters):
                         
                             dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
                                       (np.linalg.norm(Parameters.realFlux - flux_i))) * 
-                                    ((1 + np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                          np.sign(np.array(concCC_i))))) + 
-                                     (1 + np.sum(np.equal(np.sign(np.array(Parameters.realFlux)), 
-                                                          np.sign(np.array(flux_i)))))))
+                                    ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                              np.sign(np.array(concCC_i))))) + 
+                                     (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
+                                                              np.sign(np.array(flux_i)))))))
                         else:
-                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*
-                                      (1 + 
-                                       Parameters.realConcCC.size - 
-                                       np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                       np.sign(np.array(concCC_i))))))
+                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+                                       np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                           np.sign(np.array(concCC_i))))))
                         
                         ens_dist[numGoodModels] = dist_i
                         r.reset()
@@ -265,16 +264,14 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                             
                                 dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
                                            (np.linalg.norm(Parameters.realFlux - flux_i))) * 
-                                        ((1 + np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                              np.sign(np.array(concCC_i))))) + 
-                                         (1 + np.sum(np.equal(np.sign(np.array(Parameters.realFlux)),
-                                                              np.sign(np.array(flux_i)))))))
+                                        ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                                  np.sign(np.array(concCC_i))))) + 
+                                         (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)),
+                                                                  np.sign(np.array(flux_i)))))))
                             else:
-                                dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*
-                                          (1 + 
-                                           Parameters.realConcCC.size - 
-                                           np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
+                                dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+                                           np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                               np.sign(np.array(concCC_i))))))
                             
                             if dist_i < listdist[m]:
                                 eval_dist[m] = dist_i
@@ -380,16 +377,14 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                             
                                 dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
                                            (np.linalg.norm(Parameters.realFlux - flux_i))) * 
-                                        ((1 + np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                              np.sign(np.array(concCC_i))))) + 
-                                         (1 + np.sum(np.equal(np.sign(np.array(Parameters.realFlux)), 
-                                                              np.sign(np.array(flux_i)))))))
+                                        ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                                  np.sign(np.array(concCC_i))))) + 
+                                         (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
+                                                                  np.sign(np.array(flux_i)))))))
                             else:
-                                dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*
-                                          (1 + 
-                                           Parameters.realConcCC.size -
-                                           np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
+                                dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+                                           np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                               np.sign(np.array(concCC_i))))))
                                 
                             if dist_i < listDist[l]:
                                 rnd_dist[l] = dist_i
