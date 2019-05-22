@@ -363,6 +363,30 @@ def testModels(modelType):
         S4 = 1
         S5 = 1
         """
+    elif modelType == 'SigPath_Bare':
+        realModel = """
+        var S0, S1, S2, S3, S4, S5;
+        J0: S0 -> S1; (Kf0*S0)/(1 + S0);
+        J1: S1 -> S0; (Kf1*S1)/(1 + S1);
+        J2: S2 -> S3; (Kf2*S2)/(1 + S2);
+        J3: S3 -> S2; (Kf3*S3)/(1 + S3);
+        J4: S4 -> S5; (Kf4*S4)/(1 + S4);
+        J5: S5 -> S4; (Kf5*S5)/(1 + S5);
+        
+        Kf0 = 0.485822003905
+        Kf1 = 0.571954691013
+        Kf2 = 0.393173236422
+        Kf3 = 0.75830845241
+        Kf4 = 0.948522702962
+        Kf5 = 0.272790656829
+        
+        S0 = 1
+        S1 = 1
+        S2 = 1
+        S3 = 1
+        S4 = 1
+        S5 = 1
+        """
     else:
         raise Exception("Requested model not found")
         
