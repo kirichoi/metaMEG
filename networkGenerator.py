@@ -131,12 +131,10 @@ def generateMutation(Parameters, rl, model):
     
     concCC = r.getScaledConcentrationControlCoefficientMatrix()
     
-    cFalse = (1 + 
-              concCC.shape[0] - 
-              np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                              np.sign(np.array(concCC))), axis=0))
+    cFalse = (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                      np.sign(np.array(concCC))), axis=0))
     
-    tempdiff = cFalse*np.max(np.abs(Parameters.realConcCC - concCC), axis=0)
+    tempdiff = cFalse*np.linalg.norm(Parameters.realConcCC - concCC, axis=0)
     
     r_idx = np.random.choice(np.arange(Parameters.nr), p=np.divide(tempdiff,np.sum(tempdiff)))
     rct_id = reactionList[r_idx][3]
