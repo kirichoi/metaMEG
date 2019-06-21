@@ -27,14 +27,32 @@ def f1(k_list, *args):
     try:
         args[0].steadyStateApproximate()
         objCCC = args[0].getScaledConcentrationControlCoefficientMatrix()
-        objCCC[np.abs(objCCC) < 1e-16] = 0 # Set small values to zero
-#        objFlux = args[0].getReactionRates()
-#        objFlux[np.abs(objFlux) < 1e-16] = 0 # Set small values to zero
-#        objFCC = args[0].getScaledFluxControlCoefficientMatrix()
-#        objFCC[np.abs(objFCC) < 1e-16] = 0 # Set small values to zero
-        dist_obj = ((np.linalg.norm(args[1] - objCCC))/
-                    (1 + np.sum(np.equal(np.sign(np.array(args[1])), np.sign(np.array(objCCC))))))
-                    
+        objCCC[np.abs(objCCC) < 1e-12] = 0 # Set small values to zero
+        if np.isnan(objCCC).any():
+            dist_obj = 10000
+        else:
+            if args[3]:
+                objFlux = args[0].getReactionRates()
+                objFlux[np.abs(objFlux) < 1e-12] = 0 # Set small values to zero
+    #        objFCC = args[0].getScaledFluxControlCoefficientMatrix()
+    #        objFCC[np.abs(objFCC) < 1e-12] = 0 # Set small values to zero
+            
+            objCCC_row = objCCC.rownames
+            objCCC_col = objCCC.colnames
+            objCCC = objCCC[np.argsort(objCCC_row)]
+            objCCC = objCCC[:,np.argsort(objCCC_col)]
+            
+            if args[3]:
+                objFlux = objFlux[np.argsort(objCCC_col)]
+            
+                dist_obj = (((np.linalg.norm(args[1] - objCCC)) + (np.linalg.norm(args[2] - objFlux))) *
+                            ((1 + np.sum(np.equal(np.sign(np.array(args[1])), np.sign(np.array(objCCC))))) +
+                            (1 + np.sum(np.equal(np.sign(np.array(args[2])), np.sign(np.array(objFlux)))))))
+            else:
+                dist_obj = ((np.linalg.norm(args[1] - objCCC))*(1 + 
+                             np.sum(np.not_equal(np.sign(np.array(args[1])), 
+                                                 np.sign(np.array(objCCC))))))
+                
     except:
         countf += 1
         dist_obj = 10000
@@ -63,7 +81,7 @@ def initialize(Parameters):
     ens_model = np.empty(Parameters.ens_size, dtype='object')
     ens_rl = np.empty(Parameters.ens_size, dtype='object')
     rl_track = []
-    rl_track.append(Parameters.realReactionList)
+    rl_track.append(Parameters.knownReactionList)
     
     # Initial Random generation
     while (numGoodModels < Parameters.ens_size):
@@ -83,14 +101,11 @@ def initialize(Parameters):
             counts = 0
             countf = 0
             
-            ss = r.steadyStateSolver
-            ss.approx_maximum_steps = 5
-            
             r.steadyStateApproximate()
             
             p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
             res = scipy.optimize.differential_evolution(f1, 
-                                                        args=(r, Parameters.realConcCC, ), 
+                                                        args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
                                                         bounds=p_bound, 
                                                         maxiter=Parameters.optiMaxIter, 
                                                         tol=Parameters.optiTol,
@@ -105,30 +120,43 @@ def initialize(Parameters):
                 r = te.loada(antStr)
                 r.setValues(r.getGlobalParameterIds(), res.x)
                 
-                ss = r.steadyStateSolver
-                ss.approx_maximum_steps = 5
-                    
                 r.steadyStateApproximate()
                 SS_i = r.getFloatingSpeciesConcentrations()
+                
+                r.steadyStateApproximate()
                 
                 if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
                     numBadModels += 1
                 else:
                     concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
-                    
+                    if Parameters.FLUX:
+                        flux_i = r.getReactionRates()
+        
                     if np.isnan(concCC_i).any():
                         numBadModels += 1
                     else:
-                        concCC_i[np.abs(concCC_i) < 1e-16] = 0 # Set small values to zero
+                        concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                        if Parameters.FLUX:
+                            flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
                         
                         concCC_i_row = concCC_i.rownames
                         concCC_i_col = concCC_i.colnames
                         concCC_i = concCC_i[np.argsort(concCC_i_row)]
                         concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
                         
-                        dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))/
-                                  (1 + np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                       np.sign(np.array(concCC_i))))))
+                        if Parameters.FLUX:
+                            flux_i = flux_i[np.argsort(concCC_i_col)]
+                        
+                            dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
+                                      (np.linalg.norm(Parameters.realFlux - flux_i))) * 
+                                    ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                              np.sign(np.array(concCC_i))))) + 
+                                     (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
+                                                              np.sign(np.array(flux_i)))))))
+                        else:
+                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+                                       np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                           np.sign(np.array(concCC_i))))))
                         
                         ens_dist[numGoodModels] = dist_i
                         r.reset()
@@ -185,14 +213,11 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
             try:
                 r = te.loada(antStr)
                 
-                ss = r.steadyStateSolver
-                ss.approx_maximum_steps = 5
-                
                 r.steadyStateApproximate()
                 
                 p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
                 res = scipy.optimize.differential_evolution(f1, 
-                                                            args=(r, Parameters.realConcCC, ), 
+                                                            args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
                                                             bounds=p_bound, 
                                                             maxiter=Parameters.optiMaxIter, 
                                                             tol=Parameters.optiTol,
@@ -206,11 +231,10 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                     r = te.loada(antStr)
                     r.setValues(r.getGlobalParameterIds(), res.x)
                     
-                    ss = r.steadyStateSolver
-                    ss.approx_maximum_steps = 5
-                    
                     r.steadyStateApproximate()
                     SS_i = r.getFloatingSpeciesConcentrations()
+                    
+                    r.steadyStateApproximate()
                     
                     if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
                         eval_dist[m] = listdist[m]
@@ -218,22 +242,36 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                         eval_rl[m] = listrl[m]
                     else:
                         concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
+                        if Parameters.FLUX:
+                            flux_i = r.getReactionRates()
                         
                         if np.isnan(concCC_i).any():
                             eval_dist[m] = listdist[m]
                             eval_model[m] = listantStr[m]
                             eval_rl[m] = listrl[m]
                         else:
-                            concCC_i[np.abs(concCC_i) < 1e-16] = 0 # Set small values to zero
+                            concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                            if Parameters.FLUX:
+                                flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
                             
                             concCC_i_row = concCC_i.rownames
                             concCC_i_col = concCC_i.colnames
                             concCC_i = concCC_i[np.argsort(concCC_i_row)]
                             concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
                             
-                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))/
-                                      (1 + np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
+                            if Parameters.FLUX:
+                                flux_i = flux_i[np.argsort(concCC_i_col)]
+                            
+                                dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
+                                           (np.linalg.norm(Parameters.realFlux - flux_i))) * 
+                                        ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                                  np.sign(np.array(concCC_i))))) + 
+                                         (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)),
+                                                                  np.sign(np.array(flux_i)))))))
+                            else:
+                                dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+                                           np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                               np.sign(np.array(concCC_i))))))
                             
                             if dist_i < listdist[m]:
                                 eval_dist[m] = dist_i
@@ -287,14 +325,11 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
             try:
                 r = te.loada(antStr)
                 
-                ss = r.steadyStateSolver
-                ss.approx_maximum_steps = 5
-
                 r.steadyStateApproximate()
                 
                 p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
                 res = scipy.optimize.differential_evolution(f1, 
-                                                            args=(r, Parameters.realConcCC, ), 
+                                                            args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
                                                             bounds=p_bound, 
                                                             maxiter=Parameters.optiMaxIter, 
                                                             tol=Parameters.optiTol,
@@ -309,11 +344,10 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                     r = te.loada(antStr)
                     r.setValues(r.getGlobalParameterIds(), res.x)
                     
-                    ss = r.steadyStateSolver
-                    ss.approx_maximum_steps = 5
-                    
                     r.steadyStateApproximate()
                     SS_i = r.getFloatingSpeciesConcentrations()
+                    
+                    r.steadyStateApproximate()
                     
                     if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
                         rnd_dist[l] = listDist[l]
@@ -321,23 +355,37 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                         rnd_rl[l] = listrl[l]
                     else:
                         concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
+                        if Parameters.FLUX:
+                            flux_i = r.getReactionRates()
                         
                         if np.isnan(concCC_i).any():
                             rnd_dist[l] = listDist[l]
                             rnd_model[l] = listAntStr[l]
                             rnd_rl[l] = listrl[l]
                         else:
-                            concCC_i[np.abs(concCC_i) < 1e-16] = 0 # Set small values to zero
+                            concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                            if Parameters.FLUX:
+                                flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
                             
                             concCC_i_row = concCC_i.rownames
                             concCC_i_col = concCC_i.colnames
                             concCC_i = concCC_i[np.argsort(concCC_i_row)]
                             concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
                             
-                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))/
-                                      (1 + np.sum(np.equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
+                            if Parameters.FLUX:
+                                flux_i = flux_i[np.argsort(concCC_i_col)]
                             
+                                dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
+                                           (np.linalg.norm(Parameters.realFlux - flux_i))) * 
+                                        ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                                  np.sign(np.array(concCC_i))))) + 
+                                         (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
+                                                                  np.sign(np.array(flux_i)))))))
+                            else:
+                                dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+                                           np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                               np.sign(np.array(concCC_i))))))
+                                
                             if dist_i < listDist[l]:
                                 rnd_dist[l] = dist_i
                                 r.reset()
