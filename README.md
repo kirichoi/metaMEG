@@ -1,5 +1,7 @@
 # metaMEG
+
 Metabolic Pathway Model Ensemble Generation Algorithm
+
 COPYRIGHT 2019 Kiri Choi
 
 Metabolic Pathway Model Ensemble Generation (metaMEG) Algorithm is a modified version of [evoMEG](https://github.com/kirichoi/CCR) with fixed carbon backbone. 
