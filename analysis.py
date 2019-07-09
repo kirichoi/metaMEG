@@ -140,7 +140,7 @@ def selectWithCutoff(model_top, dist_top, cutoff=0.1):
     return model_top[:coind], dist_top[:coind]
 
 
-def selectWithKernalDensity(model_top, dist_top):
+def selectWithKernalDensity(model_top, dist_top, export_flag=False):
     """
     Model selection rountine that returns a list of models based on the output
     of kernal density estimation.
@@ -149,15 +149,26 @@ def selectWithKernalDensity(model_top, dist_top):
     :param dist_top: list of sorted distances
     """
     
-    dist_top_reshape = dist_top.reshape((len(model_top),1))
+
+    dist_top_reshape = dist_top.reshape((len(dist_top),1))
     
-    kde = neighbors.KernelDensity(kernel='tophat', bandwidth=0.005).fit(dist_top_reshape)
+    kde_xarr = np.linspace(0, np.max(dist_top), np.max(dist_top)*10)[:, np.newaxis]
     
-    log_dens = kde.score_samples(dist_top_reshape)
+    kde = neighbors.KernelDensity(kernel='gaussian', bandwidth=0.3).fit(dist_top_reshape)
+    
+    log_dens = kde.score_samples(kde_xarr)
     
     minInd = signal.argrelextrema(log_dens, np.less)
     
-    return minInd, log_dens
+    if len(minInd[0]) == 0:
+        minInd = np.array([[len(model_top) - 1]])
+
+    if export_flag:
+        minInd = np.array([[len(model_top) - 1]])
+    
+    kde_idx = (np.abs(dist_top - kde_xarr[minInd[0][0]])).argmin()
+    
+    return minInd, log_dens, kde_xarr, kde_idx
 
     
 def testModelAnalysis(realModel):
