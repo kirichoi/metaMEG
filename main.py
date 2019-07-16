@@ -32,8 +32,8 @@ if __name__ == '__main__':
         
         # Test models =========================================================
         
-        # 'FFL', 'Linear', 'Nested', 'Branched'
-        modelType = 'Linear_m'
+        # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
+        modelType = 'SigPath_Bare'
         
         
         # General settings ====================================================
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         # Number of generations
         n_gen = 100
         # Size of output ensemble
-        ens_size = 100
+        ens_size = 200
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         # Maximum iteration allowed for mutation
         maxIter_mut = 20
         # Set conserved moiety
-        conservedMoiety = False
+        conservedMoiety = True
         
         
         # Optimizer settings ==================================================
@@ -96,10 +96,10 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False
         # Path to save the output
-        EXPORT_PATH = './USE/output_Linear_m_update'
+        EXPORT_PATH = './USE/output_SigPath_Bare_cm_big'
         
         # Flag to run algorithm
-        RUN = True
+        RUN = False
         
 
 #%%    
@@ -110,7 +110,6 @@ if __name__ == '__main__':
         roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_MAX_STEPS, 100)
         roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TIME, 1000000)
 #        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TOL, 1e-3)
-
         
         # Using one of the test models
         realModel = ioutils.testModels(modelType)
@@ -166,6 +165,7 @@ if __name__ == '__main__':
         ens_range = range(ens_size)
         mut_range = range(mut_size)
         r_range = range(nr)
+        
     
 #%%
         
@@ -263,15 +263,10 @@ if __name__ == '__main__':
         
         #%%
         # Collect models
-        minInd, log_dens = analysis.selectWithKernalDensity(model_top, dist_top)
-        if len(minInd[0]) == 0:
-            minInd = np.array([[len(model_top) - 1]])
+        minInd, log_dens, kde_xarr, kde_idx = analysis.selectWithKernalDensity(model_top, dist_top, export_flag=Parameters.EXPORT_ALL_MODELS)
 
-        if Parameters.EXPORT_ALL_MODELS:
-            minInd = np.array([[len(model_top) - 1]])
-
-        model_col = model_top[:minInd[0][0] + 1]
-        dist_col = dist_top[:minInd[0][0] + 1]
+        model_col = model_top[:kde_idx]
+        dist_col = dist_top[:kde_idx]
             
     #%%
         EXPORT_PATH = os.path.abspath(os.path.join(os.getcwd(), Parameters.EXPORT_PATH))
