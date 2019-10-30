@@ -387,6 +387,28 @@ def testModels(modelType):
         S4 = 1
         S5 = 1
         """
+    elif modelType == 'NameTest':
+        realModel = """
+        var X, Y, Z;
+        const INP, SNK;
+        J0: INP -> X; Kf0*INP/(1 + INP);
+        J1: X -> Y; Kf1*X/(1 + X);
+        J2: Y -> Z; Kf2*Y/(1 + Y);
+        J3: Z -> SNK; Kf3*Z/(1 + Z);
+        J4: X -> Z; Kf4*X/(1 + X);
+       
+        Kf0 = 0.285822003905
+        Kf1 = 0.571954691013
+        Kf2 = 0.393173236422
+        Kf3 = 0.75830845241
+        Kf4 = 0.148522702962
+       
+        INP = 3
+        SNK = 5
+        X = 1
+        Y = 1
+        Z = 1
+        """
     else:
         raise Exception("Requested model not found")
         
