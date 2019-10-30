@@ -122,9 +122,9 @@ if __name__ == '__main__':
         realNumBoundary = realRR.getNumBoundarySpecies()
         realNumFloating = realRR.getNumFloatingSpecies()
         realFloatingIds = np.sort(realRR.getFloatingSpeciesIds())
-        realFloatingIdsInd = list(map(int, [s.strip('S') for s in realFloatingIds]))
+        realFloatingIdsInd = np.arange(realNumFloating)
         realBoundaryIds = np.sort(realRR.getBoundarySpeciesIds())
-        realBoundaryIdsInd = list(map(int,[s.strip('S') for s in realBoundaryIds]))
+        realBoundaryIdsInd = np.arange(realNumFloating, realNumFloating+realNumBoundary)
         realBoundaryVal = realRR.getBoundarySpeciesConcentrations()
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
