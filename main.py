@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'SigPath_Bare'
+        modelType = 'FFL_m'
         
         
         # General settings ====================================================
@@ -122,11 +122,9 @@ if __name__ == '__main__':
         realNumBoundary = realRR.getNumBoundarySpecies()
         realNumFloating = realRR.getNumFloatingSpecies()
         realFloatingIds = np.sort(realRR.getFloatingSpeciesIds())
-        realFloatingIdsInd = list(map(int, [s.strip('S') for s in realRR.getFloatingSpeciesIds()]))
-        realFloatingIdsInd.sort()
+        realFloatingIdsInd = list(map(int, [s.strip('S') for s in realFloatingIds]))
         realBoundaryIds = np.sort(realRR.getBoundarySpeciesIds())
-        realBoundaryIdsInd = list(map(int,[s.strip('S') for s in realRR.getBoundarySpeciesIds()]))
-        realBoundaryIdsInd.sort()
+        realBoundaryIdsInd = list(map(int,[s.strip('S') for s in realBoundaryIds]))
         realBoundaryVal = realRR.getBoundarySpeciesConcentrations()
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
