@@ -10,6 +10,9 @@ class ReactionType:
     BIUNI = 1
     UNIBI = 2
     BIBI = 3
+    TRIBI = 4
+    BITRI = 5
+    TRITRI = 6
 
 class RegulationType:
     DEFAULT = 0
@@ -190,44 +193,44 @@ def generateMutation(Parameters, rl, model):
 # Returns a list:
 # [New Stoichiometry matrix, list of floatingIds, list of boundaryIds]
 def getFullStoichiometryMatrix(reactionList, ns):
-    reactionListCopy = copy.deepcopy(reactionList)
-    st = np.zeros((ns, len(reactionListCopy)))
+    rlcopy = copy.deepcopy(reactionList)
+    st = np.zeros((ns, len(rlcopy)))
     
-    for index, rind in enumerate(reactionListCopy):
+    for index, rind in enumerate(rlcopy):
         if rind[0] == ReactionType.UNIUNI:
             # UniUni
-            reactant = reactionListCopy[index][3][0]
+            reactant = rlcopy[index][3][0]
             st[reactant, index] = st[reactant, index] - 1
-            product = reactionListCopy[index][4][0]
+            product = rlcopy[index][4][0]
             st[product, index] = st[product, index] + 1
      
         elif rind[0] == ReactionType.BIUNI:
             # BiUni
-            reactant1 = reactionListCopy[index][3][0]
+            reactant1 = rlcopy[index][3][0]
             st[reactant1, index] = st[reactant1, index] - 1
-            reactant2 = reactionListCopy[index][3][1]
+            reactant2 = rlcopy[index][3][1]
             st[reactant2, index] = st[reactant2, index] - 1
-            product = reactionListCopy[index][4][0]
+            product = rlcopy[index][4][0]
             st[product, index] = st[product, index] + 1
 
         elif rind[0] == ReactionType.UNIBI:
             # UniBi
-            reactant1 = reactionListCopy[index][3][0]
+            reactant1 = rlcopy[index][3][0]
             st[reactant1, index] = st[reactant1, index] - 1
-            product1 = reactionListCopy[index][4][0]
+            product1 = rlcopy[index][4][0]
             st[product1, index] = st[product1, index] + 1
-            product2 = reactionListCopy[index][4][1]
+            product2 = rlcopy[index][4][1]
             st[product2, index] = st[product2, index] + 1
 
         else:
             # BiBi
-            reactant1 = reactionListCopy[index][3][0]
+            reactant1 = rlcopy[index][3][0]
             st[reactant1, index] = st[reactant1, index] - 1
-            reactant2 = reactionListCopy[index][3][1]
+            reactant2 = rlcopy[index][3][1]
             st[reactant2, index] = st[reactant2, index] - 1
-            product1 = reactionListCopy[index][4][0]
+            product1 = rlcopy[index][4][0]
             st[product1, index] = st[product1, index] + 1
-            product2 = reactionListCopy[index][4][1]
+            product2 = rlcopy[index][4][1]
             st[product2, index] = st[product2, index] + 1
 
     return st
@@ -639,15 +642,10 @@ def generateSimpleRateLaw(rl, floatingIds, boundaryIds, Jind):
 
 
 def generateAntimony(floatingIds, boundaryIds, stt1, stt2, reactionList, boundary_init=None):
-    reactionListCopy = copy.deepcopy(reactionList)
+    rlcopy = copy.deepcopy(reactionList)
     Klist = []
     
     real = np.append(floatingIds, boundaryIds)
-    if type(real[0]) == 'str' or type(real[0]) == np.str_:
-        real = [s.strip('S') for s in real]
-    real = list(map(int, real))
-    tar = stt1 + stt2
-    tar = list(map(int, tar))
     
     # List species
     antStr = ''
@@ -664,47 +662,50 @@ def generateAntimony(floatingIds, boundaryIds, stt1, stt2, reactionList, boundar
         antStr = antStr + ';\n'
 
     # List reactions
-    for index, rind in enumerate(reactionListCopy):
+    for index, rind in enumerate(rlcopy):
         if rind[0] == ReactionType.UNIUNI:
             # UniUni
-            antStr = antStr + 'J' + str(index) + ': S' + str(real[tar.index(reactionListCopy[index][3][0])])
+            if type(rlcopy[index][3][0]) == tuple:
+                antStr = antStr + 'J' + str(index) + ': ' + str(real[rlcopy[index][3][0][0]]) + '*' + str(real[rlcopy[index][3][0][1]])
+            else:
+                antStr = antStr + 'J' + str(index) + ': ' + str(real[rlcopy[index][3][0]])
             antStr = antStr + ' -> '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][4][0])])
+            antStr = antStr + str(real[rlcopy[index][4][0]])
             antStr = antStr + '; '
             RateLaw, klist_i = generateSimpleRateLaw(reactionList, floatingIds, boundaryIds, index)
             antStr = antStr + RateLaw
             Klist.append(klist_i)
         elif rind[0] == ReactionType.BIUNI:
             # BiUni
-            antStr = antStr + 'J' + str(index) + ': S' + str(real[tar.index(reactionListCopy[index][3][0])])
+            antStr = antStr + 'J' + str(index) + ': ' + str(real[rlcopy[index][3][0]])
             antStr = antStr + ' + '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][3][1])])
+            antStr = antStr + str(real[rlcopy[index][3][1]])
             antStr = antStr + ' -> '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][4][0])])
+            antStr = antStr + str(real[rlcopy[index][4][0]])
             antStr = antStr + '; '
             RateLaw, klist_i = generateSimpleRateLaw(reactionList, floatingIds, boundaryIds, index)
             antStr = antStr + RateLaw
             Klist.append(klist_i)
         elif rind[0] == ReactionType.UNIBI:
             # UniBi
-            antStr = antStr + 'J' + str(index) + ': S' + str(real[tar.index(reactionListCopy[index][3][0])])
+            antStr = antStr + 'J' + str(index) + ': ' + str(real[rlcopy[index][3][0]])
             antStr = antStr + ' -> '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][4][0])])
+            antStr = antStr + str(real[rlcopy[index][4][0]])
             antStr = antStr + ' + '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][4][1])])
+            antStr = antStr + str(real[rlcopy[index][4][1]])
             antStr = antStr + '; '
             RateLaw, klist_i = generateSimpleRateLaw(reactionList, floatingIds, boundaryIds, index)
             antStr = antStr + RateLaw
             Klist.append(klist_i)
         else:
             # BiBi
-            antStr = antStr + 'J' + str(index) + ': S' + str(real[tar.index(reactionListCopy[index][3][0])])
+            antStr = antStr + 'J' + str(index) + ': ' + str(real[rlcopy[index][3][0]])
             antStr = antStr + ' + '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][3][1])])
+            antStr = antStr + str(real[rlcopy[index][3][1]])
             antStr = antStr + ' -> '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][4][0])])
+            antStr = antStr + str(real[rlcopy[index][4][0]])
             antStr = antStr + ' + '
-            antStr = antStr + 'S' + str(real[tar.index(reactionListCopy[index][4][1])])
+            antStr = antStr + str(real[rlcopy[index][4][1]])
             antStr = antStr + '; '
             RateLaw, klist_i = generateSimpleRateLaw(reactionList, floatingIds, boundaryIds, index)
             antStr = antStr + RateLaw
