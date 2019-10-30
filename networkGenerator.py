@@ -286,6 +286,8 @@ def generateReactionListFromAntimony(antStr):
     numFlt = r.getNumFloatingSpecies()
     boundaryId = r.getBoundarySpeciesIds()
     floatingId = r.getFloatingSpeciesIds()
+    allId = floatingId + boundaryId
+    allId.sort()
     nr = r.getNumReactions()
     
     # prepare symbols for sympy
@@ -396,19 +398,19 @@ def generateReactionListFromAntimony(antStr):
                 rType = 3
         
         for j in range(len(rct[i])):
-            rct_temp.append(int(rct[i][j][1:]))
+            rct_temp.append(allId.index(rct[i][j]))
             
         for j in range(len(prd[i])):
-            prd_temp.append(int(prd[i][j][1:]))
+            prd_temp.append(allId.index(prd[i][j]))
         
         if len(mod_type[i]) == 0:
             regType = 0
         else:
             for k in range(len(mod_type[i])):
                 if mod_type[i][k] == 'inhibitor':
-                    inhib.append(int(mod[i][k][1:]))
+                    inhib.append(allId.index(mod[i][k]))
                 elif mod_type[i][k] == 'activator':
-                    activ.append(int(mod[i][k][1:]))
+                    activ.append(allId.index(mod[i][k]))
                 
                 if len(inhib) > 0:
                     if len(activ) == 0:
@@ -445,6 +447,8 @@ def generateKnownReactionListFromAntimony(antStr):
     numFlt = r.getNumFloatingSpecies()
     boundaryId = r.getBoundarySpeciesIds()
     floatingId = r.getFloatingSpeciesIds()
+    allId = floatingId + boundaryId
+    allId.sort()
     nr = r.getNumReactions()
     
     # prepare symbols for sympy
@@ -555,10 +559,10 @@ def generateKnownReactionListFromAntimony(antStr):
                 rType = 3
         
         for j in range(len(rct[i])):
-            rct_temp.append(int(rct[i][j][1:]))
+            rct_temp.append(allId.index(rct[i][j]))
             
         for j in range(len(prd[i])):
-            prd_temp.append(int(prd[i][j][1:]))
+            prd_temp.append(allId.index(prd[i][j]))
         
         regType = 0
                 
@@ -646,6 +650,7 @@ def generateAntimony(floatingIds, boundaryIds, stt1, stt2, reactionList, boundar
     Klist = []
     
     real = np.append(floatingIds, boundaryIds)
+    real.sort()
     
     # List species
     antStr = ''
