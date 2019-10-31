@@ -409,6 +409,8 @@ def testModels(modelType):
         Y = 1
         Z = 1
         """
+    elif modelType == 'ccm':
+        realModel = r"./models/MODEL1505110000.xml"
     else:
         raise Exception("Requested model not found")
         
