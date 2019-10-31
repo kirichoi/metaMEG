@@ -10,9 +10,7 @@ class ReactionType:
     BIUNI = 1
     UNIBI = 2
     BIBI = 3
-    TRIBI = 4
-    BITRI = 5
-    TRITRI = 6
+    OTHER = 4
 
 class RegulationType:
     DEFAULT = 0
@@ -197,41 +195,43 @@ def getFullStoichiometryMatrix(reactionList, ns):
     st = np.zeros((ns, len(rlcopy)))
     
     for index, rind in enumerate(rlcopy):
-        if rind[0] == ReactionType.UNIUNI:
+#        if rind[0] == ReactionType.UNIUNI:
             # UniUni
-            reactant = rlcopy[index][3][0]
+        for i in range(len(rlcopy[index][3])):
+            reactant = rlcopy[index][3][i]
             st[reactant, index] = st[reactant, index] - 1
-            product = rlcopy[index][4][0]
+        for j in range(len(rlcopy[index][4])):
+            product = rlcopy[index][4][j]
             st[product, index] = st[product, index] + 1
      
-        elif rind[0] == ReactionType.BIUNI:
-            # BiUni
-            reactant1 = rlcopy[index][3][0]
-            st[reactant1, index] = st[reactant1, index] - 1
-            reactant2 = rlcopy[index][3][1]
-            st[reactant2, index] = st[reactant2, index] - 1
-            product = rlcopy[index][4][0]
-            st[product, index] = st[product, index] + 1
-
-        elif rind[0] == ReactionType.UNIBI:
-            # UniBi
-            reactant1 = rlcopy[index][3][0]
-            st[reactant1, index] = st[reactant1, index] - 1
-            product1 = rlcopy[index][4][0]
-            st[product1, index] = st[product1, index] + 1
-            product2 = rlcopy[index][4][1]
-            st[product2, index] = st[product2, index] + 1
-
-        else:
-            # BiBi
-            reactant1 = rlcopy[index][3][0]
-            st[reactant1, index] = st[reactant1, index] - 1
-            reactant2 = rlcopy[index][3][1]
-            st[reactant2, index] = st[reactant2, index] - 1
-            product1 = rlcopy[index][4][0]
-            st[product1, index] = st[product1, index] + 1
-            product2 = rlcopy[index][4][1]
-            st[product2, index] = st[product2, index] + 1
+#        elif rind[0] == ReactionType.BIUNI:
+#            # BiUni
+#            reactant1 = rlcopy[index][3][0]
+#            st[reactant1, index] = st[reactant1, index] - 1
+#            reactant2 = rlcopy[index][3][1]
+#            st[reactant2, index] = st[reactant2, index] - 1
+#            product = rlcopy[index][4][0]
+#            st[product, index] = st[product, index] + 1
+#
+#        elif rind[0] == ReactionType.UNIBI:
+#            # UniBi
+#            reactant1 = rlcopy[index][3][0]
+#            st[reactant1, index] = st[reactant1, index] - 1
+#            product1 = rlcopy[index][4][0]
+#            st[product1, index] = st[product1, index] + 1
+#            product2 = rlcopy[index][4][1]
+#            st[product2, index] = st[product2, index] + 1
+#
+#        elif rind[0] == ReactionType.BIBI:
+#            # BiBi
+#            reactant1 = rlcopy[index][3][0]
+#            st[reactant1, index] = st[reactant1, index] - 1
+#            reactant2 = rlcopy[index][3][1]
+#            st[reactant2, index] = st[reactant2, index] - 1
+#            product1 = rlcopy[index][4][0]
+#            st[product1, index] = st[product1, index] + 1
+#            product2 = rlcopy[index][4][1]
+#            st[product2, index] = st[product2, index] + 1
 
     return st
         
@@ -244,30 +244,32 @@ def removeBoundaryNodes(st):
     nSpecies = dims[0]
     nReactions = dims[1]
     
-    speciesIds = np.arange (nSpecies)
+    speciesIds = np.arange(nSpecies)
     indexes = []
     orphanSpecies = []
     countBoundarySpecies = 0
     for r in range(nSpecies): 
         # Scan across the columns, count + and - coefficients
-        plusCoeff = 0; minusCoeff = 0
+        plusCoeff = 0
+        minusCoeff = 0
         for c in range(nReactions):
             if st[r,c] < 0:
-                minusCoeff = minusCoeff + 1
+                minusCoeff += 1
             elif st[r,c] > 0:
-                plusCoeff = plusCoeff + 1
+                plusCoeff += 1
         if plusCoeff == 0 and minusCoeff == 0:
             # No reaction attached to this species
-            orphanSpecies.append (r)
+            orphanSpecies.append(r)
         elif plusCoeff == 0 and minusCoeff != 0:
             # Species is a source
-            indexes.append (r)
-            countBoundarySpecies = countBoundarySpecies + 1
+            indexes.append(r)
+            countBoundarySpecies += 1
         elif minusCoeff == 0 and plusCoeff != 0:
             # Species is a sink
-            indexes.append (r)
-            countBoundarySpecies = countBoundarySpecies + 1
+            indexes.append(r)
+            countBoundarySpecies += 1
 
+    print(orphanSpecies)
     floatingIds = np.delete(speciesIds, indexes+orphanSpecies, axis=0).astype('int')
     floatingIds = floatingIds.tolist()
 
@@ -280,7 +282,10 @@ def generateReactionListFromAntimony(antStr):
     """
     import sympy
     
-    r = te.loada(antStr)
+    try:
+        r = te.loada(antStr)
+    except:
+        r = te.loadSBMLModel(antStr)
     
     numBnd = r.getNumBoundarySpecies()
     numFlt = r.getNumFloatingSpecies()
@@ -318,7 +323,9 @@ def generateReactionListFromAntimony(antStr):
     
     # extract reactant, product, modifiers, and kinetic laws
     rct = []
+    rctst = []
     prd = []
+    prdst = []
     mod = []
     r_type = []
     kineticLaw = []
@@ -329,24 +336,30 @@ def generateReactionListFromAntimony(antStr):
 
     for slr in sbmlmodel.getListOfReactions():
         temprct = []
+        temprctst = []
         tempprd = []
+        tempprdst = []
         tempmod = []
         
         sbmlreaction = sbmlmodel.getReaction(slr.getId())
         for sr in range(sbmlreaction.getNumReactants()):
             sbmlrct = sbmlreaction.getReactant(sr)
             temprct.append(sbmlrct.getSpecies())
+            temprctst.append(sbmlrct.getStoichiometry())
         for sp in range(sbmlreaction.getNumProducts()):
             sbmlprd = sbmlreaction.getProduct(sp)
             tempprd.append(sbmlprd.getSpecies())
+            tempprdst.append(sbmlprd.getStoichiometry())
         for sm in range(sbmlreaction.getNumModifiers()):
             sbmlmod = sbmlreaction.getModifier(sm)
             tempmod.append(sbmlmod.getSpecies())
         kl = sbmlreaction.getKineticLaw()
         
-        rct.append(sorted(temprct, key=lambda v: (v.upper(), v[0].islower())))
-        prd.append(sorted(tempprd, key=lambda v: (v.upper(), v[0].islower())))
-        mod.append(sorted(tempmod, key=lambda v: (v.upper(), v[0].islower())))
+        rct.append(temprct)
+        rctst.append(temprctst)
+        prd.append(tempprd)
+        prdst.append(tempprdst)
+        mod.append(tempmod)
         
         # Update kinetic law according to change in species name
         kl_split = kl.getFormula().split(' ')
@@ -391,17 +404,23 @@ def generateReactionListFromAntimony(antStr):
                 rType = 0
             elif len(prd[i]) == 2:
                 rType = 2
+            else:
+                rType = 4
         elif len(rct[i]) == 2:
             if len(prd[i]) == 1:
                 rType = 1
             elif len(prd[i]) == 2:
                 rType = 3
+            else:
+                rType = 4
+        else:
+            rType = 4
         
         for j in range(len(rct[i])):
-            rct_temp.append(allId.index(rct[i][j]))
+            rct_temp.append((rctst[i][j], allId.index(rct[i][j])))
             
         for j in range(len(prd[i])):
-            prd_temp.append(allId.index(prd[i][j]))
+            prd_temp.append((prdst[i][j], allId.index(prd[i][j])))
         
         if len(mod_type[i]) == 0:
             regType = 0
@@ -441,7 +460,10 @@ def generateKnownReactionListFromAntimony(antStr):
     """
     import sympy
     
-    r = te.loada(antStr)
+    try:
+        r = te.loada(antStr)
+    except:
+        r = te.loadSBMLModel(antStr)
     
     numBnd = r.getNumBoundarySpecies()
     numFlt = r.getNumFloatingSpecies()
@@ -479,7 +501,9 @@ def generateKnownReactionListFromAntimony(antStr):
     
     # extract reactant, product, modifiers, and kinetic laws
     rct = []
+    rctst = []
     prd = []
+    prdst = []
     mod = []
     r_type = []
     kineticLaw = []
@@ -490,24 +514,30 @@ def generateKnownReactionListFromAntimony(antStr):
 
     for slr in sbmlmodel.getListOfReactions():
         temprct = []
+        temprctst = []
         tempprd = []
+        tempprdst = []
         tempmod = []
         
         sbmlreaction = sbmlmodel.getReaction(slr.getId())
         for sr in range(sbmlreaction.getNumReactants()):
             sbmlrct = sbmlreaction.getReactant(sr)
             temprct.append(sbmlrct.getSpecies())
+            temprctst.append(sbmlrct.getStoichiometry())
         for sp in range(sbmlreaction.getNumProducts()):
             sbmlprd = sbmlreaction.getProduct(sp)
             tempprd.append(sbmlprd.getSpecies())
+            tempprdst.append(sbmlprd.getStoichiometry())
         for sm in range(sbmlreaction.getNumModifiers()):
             sbmlmod = sbmlreaction.getModifier(sm)
             tempmod.append(sbmlmod.getSpecies())
         kl = sbmlreaction.getKineticLaw()
         
-        rct.append(sorted(temprct, key=lambda v: (v.upper(), v[0].islower())))
-        prd.append(sorted(tempprd, key=lambda v: (v.upper(), v[0].islower())))
-        mod.append(sorted(tempmod, key=lambda v: (v.upper(), v[0].islower())))
+        rct.append(temprct)
+        rctst.append(temprctst)
+        prd.append(tempprd)
+        prdst.append(tempprdst)
+        mod.append(tempmod)
         
         # Update kinetic law according to change in species name
         kl_split = kl.getFormula().split(' ')
@@ -516,7 +546,7 @@ def generateKnownReactionListFromAntimony(antStr):
                 kl_split[i] = '_S'
         
         kineticLaw.append(' '.join(kl_split))
-    
+
     # use sympy for analyzing modifiers weSmart
     for ml in range(len(mod)):
         mod_type_temp = []
@@ -552,17 +582,23 @@ def generateKnownReactionListFromAntimony(antStr):
                 rType = 0
             elif len(prd[i]) == 2:
                 rType = 2
+            else:
+                rType = 4
         elif len(rct[i]) == 2:
             if len(prd[i]) == 1:
                 rType = 1
             elif len(prd[i]) == 2:
                 rType = 3
+            else:
+                rType = 4
+        else:
+            rType = 4
         
         for j in range(len(rct[i])):
-            rct_temp.append(allId.index(rct[i][j]))
+            rct_temp.append((rctst[i][j], allId.index(rct[i][j])))
             
         for j in range(len(prd[i])):
-            prd_temp.append(allId.index(prd[i][j]))
+            prd_temp.append((prdst[i][j], allId.index(prd[i][j])))
         
         regType = 0
                 
