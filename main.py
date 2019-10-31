@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'FFL_m'
+        modelType = 'ccm'
         
         
         # General settings ====================================================
@@ -107,24 +107,26 @@ if __name__ == '__main__':
             roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, True)
 
         roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX, True)
-        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_MAX_STEPS, 100)
+        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_MAX_STEPS, 5)
         roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TIME, 1000000)
 #        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TOL, 1e-3)
         
         # Using one of the test models
         realModel = ioutils.testModels(modelType)
         
-        if os.path.exists(realModel):
+        try:
             realRR = te.loadSBMLModel(realModel)
-        else:
+        except:
             realRR = te.loada(realModel)
         
         realNumBoundary = realRR.getNumBoundarySpecies()
-        realNumFloating = realRR.getNumFloatingSpecies()
+        realNumFloating = realRR.getNumFloatingSpecies() 
         realFloatingIds = np.sort(realRR.getFloatingSpeciesIds())
-        realFloatingIdsInd = np.arange(realNumFloating)
         realBoundaryIds = np.sort(realRR.getBoundarySpeciesIds())
-        realBoundaryIdsInd = np.arange(realNumFloating, realNumFloating+realNumBoundary)
+        allIds = realRR.getFloatingSpeciesIds() + realRR.getBoundarySpeciesIds()
+        allIds.sort()
+        realFloatingIdsInd = np.searchsorted(allIds, realFloatingIds)
+        realBoundaryIdsInd = np.searchsorted(allIds, realBoundaryIds)
         realBoundaryVal = realRR.getBoundarySpeciesConcentrations()
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
