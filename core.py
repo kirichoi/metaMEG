@@ -93,9 +93,11 @@ def initialize(Parameters):
                                      Parameters.realBoundaryIds, 
                                      Parameters.allIds,
                                      rl, 
-                                     boundary_init=Parameters.realBoundaryVal)
+                                     boundary_init=Parameters.realBoundaryVal,
+                                     floating_init=Parameters.realFloatingVal)
         try:
             r = te.loada(antStr)
+            r.steadyStateSelections = Parameters.steadyStateSelections
 
             counts = 0
             countf = 0
@@ -117,6 +119,7 @@ def initialize(Parameters):
                 # TODO: Might be able to cut the bottom part by simply using 
                 # the obj func value from optimizer
                 r = te.loada(antStr)
+                r.steadyStateSelections = Parameters.steadyStateSelections
                 r.setValues(r.getGlobalParameterIds(), res.x)
                 
                 r.steadyStateApproximate()
@@ -206,9 +209,11 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                                          Parameters.realBoundaryIds, 
                                          Parameters.allIds,
                                          rl, 
-                                         boundary_init=Parameters.realBoundaryVal)
+                                         boundary_init=Parameters.realBoundaryVal,
+                                         floating_init=Parameters.realFloatingVal)
             try:
                 r = te.loada(antStr)
+                r.steadyStateSelections = Parameters.steadyStateSelections
                 
                 r.steadyStateApproximate()
                 
@@ -226,6 +231,7 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                     eval_rl[m] = listrl[m]
                 else:
                     r = te.loada(antStr)
+                    r.steadyStateSelections = Parameters.steadyStateSelections
                     r.setValues(r.getGlobalParameterIds(), res.x)
                     
                     r.steadyStateApproximate()
@@ -317,9 +323,11 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                                          Parameters.realBoundaryIds, 
                                          Parameters.allIds,
                                          rl,
-                                         boundary_init=Parameters.realBoundaryVal)
+                                         boundary_init=Parameters.realBoundaryVal,
+                                         floating_init=Parameters.realFloatingVal)
             try:
                 r = te.loada(antStr)
+                r.steadyStateSelections = Parameters.steadyStateSelections
                 
                 r.steadyStateApproximate()
                 
@@ -338,6 +346,7 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                     rnd_rl[l] = listrl[l]
                 else:
                     r = te.loada(antStr)
+                    r.steadyStateSelections = Parameters.steadyStateSelections
                     r.setValues(r.getGlobalParameterIds(), res.x)
                     
                     r.steadyStateApproximate()

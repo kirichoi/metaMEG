@@ -33,15 +33,15 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'CCM'
+        modelType = 'GLYCO'
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 100
+        n_gen = 10
         # Size of output ensemble
-        ens_size = 200
+        ens_size = 10
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -52,6 +52,8 @@ if __name__ == '__main__':
         maxIter_mut = 20
         # Set conserved moiety
         conservedMoiety = True
+        # Set steadyStateSelections
+        steadyStateSelections = ['F16P', 'PYRin', 'GLY', 'G1P', 'G6P']
         
         
         # Optimizer settings ==================================================
@@ -96,10 +98,10 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False
         # Path to save the output
-        EXPORT_PATH = './USE/output_SigPath_Bare_cm_big'
+        EXPORT_PATH = './USE/output_GLYCO_1'
         
         # Flag to run algorithm
-        RUN = False
+        RUN = True
         
 
 #%%    
@@ -131,30 +133,40 @@ if __name__ == '__main__':
         realBoundaryVal = realRR.getBoundarySpeciesConcentrations()
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
+        if steadyStateSelections != None:
+            realRR.steadyStateSelections = np.sort(steadyStateSelections)
+        else:
+            realRR.steadyStateSelections = realFloatingIds
+        
         realRR.steadyState()
         realSteadyState = realRR.getFloatingSpeciesConcentrations()
         realSteadyStateRatio = np.divide(realSteadyState, np.min(realSteadyState))
-        realFlux = realRR.getReactionRates()
+        if FLUX:
+            realFlux = realRR.getReactionRates()
         realRR.reset()
         realRR.steadyState()
-        realFluxCC = realRR.getScaledFluxControlCoefficientMatrix()
+        if FLUX:
+            realFluxCC = realRR.getScaledFluxControlCoefficientMatrix()
         realConcCC = realRR.getScaledConcentrationControlCoefficientMatrix()
         
-        realFluxCC[np.abs(realFluxCC) < 1e-12] = 0
+        if FLUX:
+            realFluxCC[np.abs(realFluxCC) < 1e-12] = 0
         realConcCC[np.abs(realConcCC) < 1e-12] = 0
         
         # Ordering
-        realFluxCCrow = realFluxCC.rownames
-        realFluxCCcol = realFluxCC.colnames
-        realFluxCC = realFluxCC[np.argsort(realFluxCCrow)]
-        realFluxCC = realFluxCC[:,np.argsort(realFluxCCcol)]
+        if FLUX:
+            realFluxCCrow = realFluxCC.rownames
+            realFluxCCcol = realFluxCC.colnames
+            realFluxCC = realFluxCC[np.argsort(realFluxCCrow)]
+            realFluxCC = realFluxCC[:,np.argsort(realFluxCCcol)]
         
         realConcCCrow = realConcCC.rownames
         realConcCCcol = realConcCC.colnames
         realConcCC = realConcCC[np.argsort(realConcCCrow)]
         realConcCC = realConcCC[:,np.argsort(realConcCCcol)]
         
-        realFlux = realFlux[np.argsort(realRR.getReactionIds())]
+        if FLUX:
+            realFlux = realFlux[np.argsort(realRR.getReactionIds())]
         
         ns = realNumBoundary + realNumFloating # Number of species
         nr = realRR.getNumReactions() # Number of reactions
