@@ -87,14 +87,13 @@ def initialize(Parameters):
     while (numGoodModels < Parameters.ens_size):
         # Ensure no redundant model
         rl = ng.generateReactionList(Parameters)
-        st = ng.getFullStoichiometryMatrix(rl, Parameters.ns).tolist()
-        stt = ng.removeBoundaryNodes(np.array(st))
         while rl in rl_track:
             rl = ng.generateReactionList(Parameters)
-            st = ng.getFullStoichiometryMatrix(rl, Parameters.ns).tolist()
-            stt = ng.removeBoundaryNodes(np.array(st))
-        antStr = ng.generateAntimony(Parameters.realFloatingIds, Parameters.realBoundaryIds, stt[1],
-                                      stt[2], rl, boundary_init=Parameters.realBoundaryVal)
+        antStr = ng.generateAntimony(Parameters.realFloatingIds, 
+                                     Parameters.realBoundaryIds, 
+                                     Parameters.allIds,
+                                     rl, 
+                                     boundary_init=Parameters.realBoundaryVal)
         try:
             r = te.loada(antStr)
 
@@ -193,13 +192,9 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
         o = 0
         
         rl = ng.generateMutation(Parameters, listrl[m], listantStr[m])
-        st = ng.getFullStoichiometryMatrix(rl, Parameters.ns).tolist()
-        stt = ng.removeBoundaryNodes(np.array(st))
         
         while ((rl in rl_track) and (o < Parameters.maxIter_mut)):
             rl = ng.generateMutation(Parameters, listrl[m], listantStr[m])
-            st = ng.getFullStoichiometryMatrix(rl, Parameters.ns).tolist()
-            stt = ng.removeBoundaryNodes(np.array(st))
             o += 1
         
         if o >= Parameters.maxIter_mut:
@@ -207,9 +202,11 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
             eval_model[m] = listantStr[m]
             eval_rl[m] = listrl[m]
         else:
-            antStr = ng.generateAntimony(Parameters.realFloatingIds, Parameters.realBoundaryIds, 
-                                          stt[1], stt[2], rl, 
-                                          boundary_init=Parameters.realBoundaryVal)
+            antStr = ng.generateAntimony(Parameters.realFloatingIds, 
+                                         Parameters.realBoundaryIds, 
+                                         Parameters.allIds,
+                                         rl, 
+                                         boundary_init=Parameters.realBoundaryVal)
             try:
                 r = te.loada(antStr)
                 
@@ -306,13 +303,9 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
         d = 0
         
         rl = ng.generateReactionList(Parameters)
-        st = ng.getFullStoichiometryMatrix(rl, Parameters.ns).tolist()
-        stt = ng.removeBoundaryNodes(np.array(st))
         # Ensure no redundant models
         while ((rl in rl_track) and (d < Parameters.maxIter_gen)):
             rl = ng.generateReactionList(Parameters)
-            st = ng.getFullStoichiometryMatrix(rl, Parameters.ns).tolist()
-            stt = ng.removeBoundaryNodes(np.array(st))
             d += 1
             
         if d >= Parameters.maxIter_gen:
@@ -320,8 +313,11 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
             rnd_model[l] = listAntStr[l]
             rnd_rl[l] = listrl[l]
         else:
-            antStr = ng.generateAntimony(Parameters.realFloatingIds, Parameters.realBoundaryIds, 
-                            stt[1], stt[2], rl, boundary_init=Parameters.realBoundaryVal)
+            antStr = ng.generateAntimony(Parameters.realFloatingIds, 
+                                         Parameters.realBoundaryIds, 
+                                         Parameters.allIds,
+                                         rl,
+                                         boundary_init=Parameters.realBoundaryVal)
             try:
                 r = te.loada(antStr)
                 
