@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'ccm'
+        modelType = 'CCM'
         
         
         # General settings ====================================================
@@ -115,9 +115,9 @@ if __name__ == '__main__':
         realModel = ioutils.testModels(modelType)
         
         try:
-            realRR = te.loadSBMLModel(realModel)
-        except:
             realRR = te.loada(realModel)
+        except:
+            realRR = te.loadSBMLModel(realModel)
         
         realNumBoundary = realRR.getNumBoundarySpecies()
         realNumFloating = realRR.getNumFloatingSpecies() 
@@ -127,6 +127,7 @@ if __name__ == '__main__':
         allIds.sort()
         realFloatingIdsInd = np.searchsorted(allIds, realFloatingIds)
         realBoundaryIdsInd = np.searchsorted(allIds, realBoundaryIds)
+        realFloatingVal = realRR.getFloatingSpeciesConcentrations()
         realBoundaryVal = realRR.getBoundarySpeciesConcentrations()
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
@@ -168,7 +169,7 @@ if __name__ == '__main__':
         
     
 #%%
-        
+    
     if Parameters.RUN:    
         
         print("Original Control Coefficients")
