@@ -53,7 +53,7 @@ if __name__ == '__main__':
         # Set conserved moiety
         conservedMoiety = True
         # Set steadyStateSelections
-        steadyStateSelections = ['F16P', 'PYRin', 'GLY', 'G1P', 'G6P']
+        steadyStateSelections = None
         
         
         # Optimizer settings ==================================================
@@ -101,7 +101,7 @@ if __name__ == '__main__':
         EXPORT_PATH = './USE/output_GLYCO_1'
         
         # Flag to run algorithm
-        RUN = True
+        RUN = False
         
 
 #%%    
@@ -173,6 +173,7 @@ if __name__ == '__main__':
         
         realReactionList = ng.generateReactionListFromAntimony(realModel)
         knownReactionList = ng.generateKnownReactionListFromAntimony(realModel)
+        compInfo, compVal = ng.generateCompartmentFromAntimony(realModel)
         
         n_range = range(1, n_gen)
         ens_range = range(ens_size)
