@@ -409,8 +409,8 @@ def testModels(modelType):
         Y = 1
         Z = 1
         """
-    elif modelType == 'ccm':
-        realModel = r"./models/MODEL1505110000.xml"
+    elif modelType == 'GLYCO':
+        realModel = r"./models/MODEL1505110000_ant_mod.txt"
     else:
         raise Exception("Requested model not found")
         
