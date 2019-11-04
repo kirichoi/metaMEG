@@ -94,7 +94,9 @@ def initialize(Parameters):
                                      Parameters.allIds,
                                      rl, 
                                      boundary_init=Parameters.realBoundaryVal,
-                                     floating_init=Parameters.realFloatingVal)
+                                     floating_init=Parameters.realFloatingVal,
+                                     compInfo=Parameters.compInfo,
+                                     compVal=Parameters.compVal)
         try:
             r = te.loada(antStr)
             r.steadyStateSelections = Parameters.steadyStateSelections
@@ -210,7 +212,9 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                                          Parameters.allIds,
                                          rl, 
                                          boundary_init=Parameters.realBoundaryVal,
-                                         floating_init=Parameters.realFloatingVal)
+                                         floating_init=Parameters.realFloatingVal,
+                                         compInfo=Parameters.compInfo,
+                                         compVal=Parameters.compVal)
             try:
                 r = te.loada(antStr)
                 r.steadyStateSelections = Parameters.steadyStateSelections
@@ -324,7 +328,9 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                                          Parameters.allIds,
                                          rl,
                                          boundary_init=Parameters.realBoundaryVal,
-                                         floating_init=Parameters.realFloatingVal)
+                                         floating_init=Parameters.realFloatingVal,
+                                         compInfo=Parameters.compInfo,
+                                         compVal=Parameters.compVal)
             try:
                 r = te.loada(antStr)
                 r.steadyStateSelections = Parameters.steadyStateSelections
