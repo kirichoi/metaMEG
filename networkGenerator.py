@@ -586,6 +586,37 @@ def generateKnownReactionListFromAntimony(antStr):
     return reactionList
 
 
+
+def generateCompartmentFromAntimony(antStr):
+    """
+    """
+    
+    try:
+        r = te.loada(antStr)
+    except:
+        r = te.loadSBMLModel(antStr)
+    
+    compInfo = []
+    compVal = []
+    
+    doc = tesbml.readSBMLFromString(r.getSBML())
+    sbmlmodel = doc.getModel()
+    
+    for sl in sbmlmodel.getListOfSpecies():
+        s = sbmlmodel.getSpecies(sl.getId())
+        sid = s.getId()
+        sc = s.getCompartment()
+        
+        compInfo.append([sid, sc])
+    
+    for cpl in sbmlmodel.getListOfCompartments():
+        cp = sbmlmodel.getCompartment(cpl.getId())
+        compVal.append([cpl.getId(), cp.getVolume()])
+        
+    return compInfo, compVal
+
+
+
 def generateSimpleRateLaw(rl, allId, Jind):
     
     Klist = []
@@ -665,24 +696,32 @@ def generateSimpleRateLaw(rl, allId, Jind):
     return rateLaw, Klist
 
 
-def generateAntimony(floatingIds, boundaryIds, allIds, reactionList, boundary_init=None, floating_init=None):
-    rlcopy = copy.deepcopy(reactionList)
+def generateAntimony(fids, bids, allIds, rl, floating_init=None, boundary_init=None, compInfo=None, compVal=None):
+    rlcopy = copy.deepcopy(rl)
     Klist = []
     
     # List species
     antStr = ''
-    if len (floatingIds) > 0:
-        antStr = antStr + 'var ' + str(floatingIds[0])
-        for index in floatingIds[1:]:
+    if len (fids) > 0:
+        antStr = antStr + 'var ' + str(fids[0])
+        for index in fids[1:]:
             antStr = antStr + ', ' + str(index)
         antStr = antStr + ';\n'
     
-    if len (boundaryIds) > 0:
-        antStr = antStr + 'const ' + str(boundaryIds[0])
-        for index in boundaryIds[1:]:
+    if len (bids) > 0:
+        antStr = antStr + 'const ' + str(bids[0])
+        for index in bids[1:]:
             antStr = antStr + ', ' + str(index)
         antStr = antStr + ';\n'
-
+        
+    if compInfo:
+        for i in range(len(compInfo)):
+            if compInfo[i][1] != 'default_compartment':
+                antStr = antStr + 'species ' + str(compInfo[i][0]) + ' in ' + str(compInfo[i][1]) + '; '
+        antStr = antStr + '\n'
+    
+    antStr = antStr + '\n'
+    
     # List reactions
     for index, rind in enumerate(rlcopy):
 #        if rind[0] == ReactionType.UNIUNI:
@@ -710,11 +749,18 @@ def generateAntimony(floatingIds, boundaryIds, allIds, reactionList, boundary_in
             else:
                 antStr = antStr + str(allIds[rlcopy[index][4][j]])
         antStr = antStr + '; '
-        RateLaw, klist_i = generateSimpleRateLaw(reactionList, allIds, index)
+        RateLaw, klist_i = generateSimpleRateLaw(rl, allIds, index)
         antStr = antStr + RateLaw
         Klist.append(klist_i)
         antStr = antStr + ';\n'
 
+    antStr = antStr + '\n'
+
+    if compVal:
+        for i in range(len(compVal)):
+            if compVal[i][0] != 'default_compartment':
+                antStr = antStr + str(compVal[i][0]) + ' = ' + str(compVal[i][1]) + ';\n'
+    
     # List rate constants
     antStr = antStr + '\n'
     Klist_f = [item for sublist in Klist for item in sublist]
@@ -732,18 +778,18 @@ def generateAntimony(floatingIds, boundaryIds, allIds, reactionList, boundary_in
     # Initialize boundary species
     antStr = antStr + '\n'
     if type(boundary_init) == type(None):
-        for index, bind in enumerate(boundaryIds):
+        for index, bind in enumerate(bids):
             antStr = antStr + str(bind) + ' = ' + str(np.random.randint (1,6)) + '\n'
     else:
-        for index, bind in enumerate(boundaryIds):
+        for index, bind in enumerate(bids):
             antStr = antStr + str(bind) + ' = ' + str(boundary_init[index]) + '\n'
     
     # Initialize floating species
     if type(boundary_init) == type(None):
-        for index, find in enumerate(floatingIds):
+        for index, find in enumerate(fids):
             antStr = antStr + str(find) + ' = ' + '1\n'
     else:
-        for index, find in enumerate(floatingIds):
+        for index, find in enumerate(fids):
             antStr = antStr + str(find) + ' = ' + str(floating_init[index]) + '\n'
         
     return antStr
