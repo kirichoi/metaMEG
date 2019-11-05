@@ -31,28 +31,16 @@ def f1(k_list, *args):
         if np.isnan(objCCC).any():
             dist_obj = 10000
         else:
-            if args[3]:
-                objFlux = args[0].getReactionRates()
-                objFlux[np.abs(objFlux) < 1e-12] = 0 # Set small values to zero
-    #        objFCC = args[0].getScaledFluxControlCoefficientMatrix()
-    #        objFCC[np.abs(objFCC) < 1e-12] = 0 # Set small values to zero
             
             objCCC_row = objCCC.rownames
             objCCC_col = objCCC.colnames
             objCCC = objCCC[np.argsort(objCCC_row)]
             objCCC = objCCC[:,np.argsort(objCCC_col)]
             
-            if args[3]:
-                objFlux = objFlux[np.argsort(objCCC_col)]
+            dist_obj = ((np.linalg.norm(args[1] - objCCC))*(1 + 
+                         np.sum(np.not_equal(np.sign(np.array(args[1])), 
+                                             np.sign(np.array(objCCC))))))
             
-                dist_obj = (((np.linalg.norm(args[1] - objCCC)) + (np.linalg.norm(args[2] - objFlux))) *
-                            ((1 + np.sum(np.equal(np.sign(np.array(args[1])), np.sign(np.array(objCCC))))) +
-                            (1 + np.sum(np.equal(np.sign(np.array(args[2])), np.sign(np.array(objFlux)))))))
-            else:
-                dist_obj = ((np.linalg.norm(args[1] - objCCC))*(1 + 
-                             np.sum(np.not_equal(np.sign(np.array(args[1])), 
-                                                 np.sign(np.array(objCCC))))))
-                
     except:
         countf += 1
         dist_obj = 10000
@@ -61,6 +49,43 @@ def f1(k_list, *args):
     
     return dist_obj
 
+
+def f1Flux(k_list, *args):
+    global counts
+    global countf
+    
+    args[0].reset()
+    
+    args[0].setValues(args[0].getGlobalParameterIds(), k_list)
+    
+    try:
+        args[0].steadyStateApproximate()
+        objCCC = args[0].getScaledConcentrationControlCoefficientMatrix()
+        objCCC[np.abs(objCCC) < 1e-12] = 0 # Set small values to zero
+        if np.isnan(objCCC).any():
+            dist_obj = 10000
+        else:
+            objFlux = args[0].getReactionRates()
+            objFlux[np.abs(objFlux) < 1e-12] = 0 # Set small values to zero
+            
+            objCCC_row = objCCC.rownames
+            objCCC_col = objCCC.colnames
+            objCCC = objCCC[np.argsort(objCCC_row)]
+            objCCC = objCCC[:,np.argsort(objCCC_col)]
+            
+            objFlux = objFlux[np.argsort(objCCC_col)]
+        
+            dist_obj = (((np.linalg.norm(args[1] - objCCC)) + (np.linalg.norm(args[2] - objFlux))) *
+                        ((1 + np.sum(np.equal(np.sign(np.array(args[1])), np.sign(np.array(objCCC))))) +
+                        (1 + np.sum(np.equal(np.sign(np.array(args[2])), np.sign(np.array(objFlux)))))))
+                
+    except:
+        countf += 1
+        dist_obj = 10000
+        
+    counts += 1
+    
+    return dist_obj
 
 def callbackF(X, convergence=0.):
     global counts
@@ -105,15 +130,23 @@ def initialize(Parameters):
             countf = 0
             
             r.steadyStateApproximate()
-            
             p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
-            res = scipy.optimize.differential_evolution(f1, 
-                                                        args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
-                                                        bounds=p_bound, 
-                                                        maxiter=Parameters.optiMaxIter, 
-                                                        tol=Parameters.optiTol,
-                                                        polish=Parameters.optiPolish, 
-                                                        seed=Parameters.r_seed)
+            if Parameters.FLUX:
+                res = scipy.optimize.differential_evolution(f1Flux, 
+                                                            args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
+                                                            bounds=p_bound, 
+                                                            maxiter=Parameters.optiMaxIter, 
+                                                            tol=Parameters.optiTol,
+                                                            polish=Parameters.optiPolish, 
+                                                            seed=Parameters.r_seed)
+            else:
+                res = scipy.optimize.differential_evolution(f1, 
+                                                            args=(r, Parameters.realConcCC), 
+                                                            bounds=p_bound, 
+                                                            maxiter=Parameters.optiMaxIter, 
+                                                            tol=Parameters.optiTol,
+                                                            polish=Parameters.optiPolish, 
+                                                            seed=Parameters.r_seed)
             
             if not res.success:
                 numBadModels += 1
@@ -222,13 +255,24 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                 r.steadyStateApproximate()
                 
                 p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
-                res = scipy.optimize.differential_evolution(f1, 
-                                                            args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
-                                                            bounds=p_bound, 
-                                                            maxiter=Parameters.optiMaxIter, 
-                                                            tol=Parameters.optiTol,
-                                                            polish=Parameters.optiPolish,
-                                                            seed=Parameters.r_seed)
+                
+                if Parameters.FLUX:
+                    res = scipy.optimize.differential_evolution(f1Flux, 
+                                                                args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
+                                                                bounds=p_bound, 
+                                                                maxiter=Parameters.optiMaxIter, 
+                                                                tol=Parameters.optiTol,
+                                                                polish=Parameters.optiPolish, 
+                                                                seed=Parameters.r_seed)
+                else:
+                    res = scipy.optimize.differential_evolution(f1, 
+                                                                args=(r, Parameters.realConcCC), 
+                                                                bounds=p_bound, 
+                                                                maxiter=Parameters.optiMaxIter, 
+                                                                tol=Parameters.optiTol,
+                                                                polish=Parameters.optiPolish, 
+                                                                seed=Parameters.r_seed)
+                    
                 if not res.success:
                     eval_dist[m] = listdist[m]
                     eval_model[m] = listantStr[m]
@@ -338,13 +382,24 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                 r.steadyStateApproximate()
                 
                 p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
-                res = scipy.optimize.differential_evolution(f1, 
-                                                            args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
-                                                            bounds=p_bound, 
-                                                            maxiter=Parameters.optiMaxIter, 
-                                                            tol=Parameters.optiTol,
-                                                            polish=Parameters.optiPolish, 
-                                                            seed=Parameters.r_seed)
+                
+                if Parameters.FLUX:
+                    res = scipy.optimize.differential_evolution(f1Flux, 
+                                                                args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
+                                                                bounds=p_bound, 
+                                                                maxiter=Parameters.optiMaxIter, 
+                                                                tol=Parameters.optiTol,
+                                                                polish=Parameters.optiPolish, 
+                                                                seed=Parameters.r_seed)
+                else:
+                    res = scipy.optimize.differential_evolution(f1, 
+                                                                args=(r, Parameters.realConcCC), 
+                                                                bounds=p_bound, 
+                                                                maxiter=Parameters.optiMaxIter, 
+                                                                tol=Parameters.optiTol,
+                                                                polish=Parameters.optiPolish, 
+                                                                seed=Parameters.r_seed)
+
                 # Failed to find solution
                 if not res.success:
                     rnd_dist[l] = listDist[l]
