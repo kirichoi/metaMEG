@@ -13,7 +13,7 @@ def exportSettings(settingsDict):
     """
     """
     
-def exportOutputs(models, dists, dist_list, settings, time, rl_track, path=None):
+def exportOutputs(models, dists, dist_list, settings, time, rl_track, path=None, export_flag=False):
     """
     Export all outputs to specified path
     

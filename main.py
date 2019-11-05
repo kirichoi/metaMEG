@@ -33,15 +33,15 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'GLYCO'
+        modelType = 'FFL_m'
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 10
+        n_gen = 100
         # Size of output ensemble
-        ens_size = 10
+        ens_size = 100
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -98,15 +98,17 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = False
         # Path to save the output
-        EXPORT_PATH = './USE/output_GLYCO_1'
+        EXPORT_PATH = './USE/output_FFL_m_test'
         
         # Flag to run algorithm
-        RUN = False
+        RUN = True
         
 
 #%%    
         if conservedMoiety:
             roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, True)
+        else:
+            roadrunner.Config.setValue(roadrunner.Config.LOADSBMLOPTIONS_CONSERVED_MOIETIES, False)
 
         roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX, True)
         roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_MAX_STEPS, 5)
@@ -136,6 +138,7 @@ if __name__ == '__main__':
         if steadyStateSelections != None:
             realRR.steadyStateSelections = np.sort(steadyStateSelections)
         else:
+            steadyStateSelections = realFloatingIds
             realRR.steadyStateSelections = realFloatingIds
         
         realRR.steadyState()
@@ -277,11 +280,8 @@ if __name__ == '__main__':
         
         #%%
         # Collect models
-        minInd, log_dens, kde_xarr, kde_idx = analysis.selectWithKernalDensity(model_top, dist_top, export_flag=Parameters.EXPORT_ALL_MODELS)
+        minInd, log_dens, kde_xarr, kde_idx = analysis.selectWithKernalDensity(dist_top)
 
-        model_col = model_top[:kde_idx]
-        dist_col = dist_top[:kde_idx]
-            
     #%%
         EXPORT_PATH = os.path.abspath(os.path.join(os.getcwd(), Parameters.EXPORT_PATH))
         
@@ -334,5 +334,11 @@ if __name__ == '__main__':
                 ioutils.exportSettings(settings, path=EXPORT_PATH)
             
             if Parameters.EXPORT_OUTPUT:
+                if Parameters.EXPORT_ALL_MODELS:
+                    model_col = model_top
+                    dist_col = dist_top
+                else:
+                    model_col = model_top[:kde_idx]
+                    dist_col = dist_top[:kde_idx]
                 ioutils.exportOutputs(model_col, dist_col, [best_dist, avg_dist, med_dist, top5_dist], 
-                                      settings, t2-t1, rl_track, path=EXPORT_PATH)
+                                      settings, t2-t1, rl_track, path=EXPORT_PATH, export_flag=Parameters.EXPORT_ALL_MODELS)

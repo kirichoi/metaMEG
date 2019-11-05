@@ -140,7 +140,7 @@ def selectWithCutoff(model_top, dist_top, cutoff=0.1):
     return model_top[:coind], dist_top[:coind]
 
 
-def selectWithKernalDensity(model_top, dist_top, export_flag=False):
+def selectWithKernalDensity(dist_top):
     """
     Model selection rountine that returns a list of models based on the output
     of kernal density estimation.
@@ -161,11 +161,8 @@ def selectWithKernalDensity(model_top, dist_top, export_flag=False):
     minInd = signal.argrelextrema(log_dens, np.less)
     
     if len(minInd[0]) == 0:
-        minInd = np.array([[len(model_top) - 1]])
+        minInd = np.array([[len(dist_top) - 1]])
 
-    if export_flag:
-        minInd = np.array([[len(model_top) - 1]])
-    
     kde_idx = (np.abs(dist_top - kde_xarr[minInd[0][0]])).argmin()
     
     return minInd, log_dens, kde_xarr, kde_idx
@@ -174,6 +171,7 @@ def selectWithKernalDensity(model_top, dist_top, export_flag=False):
 def testModelAnalysis(realModel):
     """
     """
+    pass
     
 
 
