@@ -720,8 +720,6 @@ def generateAntimony(fids, bids, allIds, rl, floating_init=None, boundary_init=N
                 antStr = antStr + 'species ' + str(compInfo[i][0]) + ' in ' + str(compInfo[i][1]) + '; '
         antStr = antStr + '\n'
     
-    antStr = antStr + '\n'
-    
     # List reactions
     for index, rind in enumerate(rlcopy):
 #        if rind[0] == ReactionType.UNIUNI:
@@ -753,8 +751,6 @@ def generateAntimony(fids, bids, allIds, rl, floating_init=None, boundary_init=N
         antStr = antStr + RateLaw
         Klist.append(klist_i)
         antStr = antStr + ';\n'
-
-    antStr = antStr + '\n'
 
     if compVal:
         for i in range(len(compVal)):
