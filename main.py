@@ -9,6 +9,7 @@ import os, sys
 import tellurium as te
 import roadrunner
 import numpy as np
+from multiprocessing import Pool
 import time
 import core
 import ioutils
@@ -33,15 +34,15 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'FFL_m'
+        modelType = 'FFL_i'
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 100
+        n_gen = 10
         # Size of output ensemble
-        ens_size = 100
+        ens_size = 10
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -51,7 +52,7 @@ if __name__ == '__main__':
         # Maximum iteration allowed for mutation
         maxIter_mut = 20
         # Set conserved moiety
-        conservedMoiety = True
+        conservedMoiety = False
         # Set steadyStateSelections
         steadyStateSelections = None
         
@@ -62,10 +63,6 @@ if __name__ == '__main__':
         optiMaxIter = 100
         optiTol = 1.
         optiPolish = False
-        # Weight for control coefficients when calculating the distance
-        w1 = 16
-        # Weight for steady-state and flux when calculating the distance
-        w2 = 1.0
         FLUX = False
         
         
@@ -96,9 +93,9 @@ if __name__ == '__main__':
         # Flag for saving collected models
         EXPORT_OUTPUT = True
         # Flag for saving current settings
-        EXPORT_SETTINGS = False
+        EXPORT_SETTINGS = True
         # Path to save the output
-        EXPORT_PATH = './USE/output_FFL_m_test'
+        EXPORT_PATH = './USE/output_FFL_i_mp_ref'
         
         # Flag to run algorithm
         RUN = True
@@ -153,8 +150,8 @@ if __name__ == '__main__':
         realConcCC = realRR.getScaledConcentrationControlCoefficientMatrix()
         
         if FLUX:
-            realFluxCC[np.abs(realFluxCC) < 1e-12] = 0
-        realConcCC[np.abs(realConcCC) < 1e-12] = 0
+            realFluxCC[np.abs(realFluxCC) < 1e-6] = 0
+        realConcCC[np.abs(realConcCC) < 1e-6] = 0
         
         # Ordering
         if FLUX:
@@ -213,6 +210,7 @@ if __name__ == '__main__':
         top5_dist = []
         
     #%%
+        
         t1 = time.time()
         
         # Initialize
@@ -317,28 +315,15 @@ if __name__ == '__main__':
                 
             
     #%%
-        if Parameters.EXPORT_SETTINGS or Parameters.EXPORT_OUTPUT:
-            settings = {}
-            settings['n_gen'] = Parameters.n_gen
-            settings['ens_size'] = Parameters.ens_size
-            settings['pass_size'] = Parameters.pass_size
-            settings['mut_size'] = Parameters.mut_size
-            settings['maxIter_gen'] = Parameters.maxIter_gen
-            settings['maxIter_mut'] = Parameters.maxIter_mut
-            settings['optiMaxIter'] = Parameters.optiMaxIter
-            settings['optiTol'] = Parameters.optiTol
-            settings['optiPolish'] = Parameters.optiPolish
-            settings['r_seed'] = Parameters.r_seed
-            
-            if Parameters.EXPORT_SETTINGS:
-                ioutils.exportSettings(settings, path=EXPORT_PATH)
-            
-            if Parameters.EXPORT_OUTPUT:
-                if Parameters.EXPORT_ALL_MODELS:
-                    model_col = model_top
-                    dist_col = dist_top
-                else:
-                    model_col = model_top[:kde_idx]
-                    dist_col = dist_top[:kde_idx]
-                ioutils.exportOutputs(model_col, dist_col, [best_dist, avg_dist, med_dist, top5_dist], 
-                                      settings, t2-t1, rl_track, path=EXPORT_PATH, export_flag=Parameters.EXPORT_ALL_MODELS)
+        if Parameters.EXPORT_SETTINGS:
+            ioutils.exportSettings(Parameters, path=EXPORT_PATH)
+        
+        if Parameters.EXPORT_OUTPUT:
+            if Parameters.EXPORT_ALL_MODELS:
+                model_col = model_top
+                dist_col = dist_top
+            else:
+                model_col = model_top[:kde_idx]
+                dist_col = dist_top[:kde_idx]
+            ioutils.exportOutputs(model_col, dist_col, [best_dist, avg_dist, med_dist, top5_dist], 
+                                  Parameters, t2-t1, rl_track, path=EXPORT_PATH)
