@@ -9,11 +9,37 @@ import sys, os
 import numpy as np
 import pandas as pd
 
-def exportSettings(settingsDict):
+def exportSettings(Parameters, path=None):
     """
     """
+    if path:
+        outputdir = path
+    else:
+        outputdir = os.path.join(os.getcwd(), 'output')
     
-def exportOutputs(models, dists, dist_list, settings, time, rl_track, path=None, export_flag=False):
+    outputtxt = open(os.path.join(outputdir, 'settings.txt'), 'w')
+    outputtxt.writelines('------------------------- SETTINGS -------------------------\n')
+    outputtxt.writelines('No. of Generations: ' + str(Parameters.n_gen) + '\n')
+    outputtxt.writelines('Ensemble Size: ' + str(Parameters.ens_size) + '\n')
+    
+    outputtxt.writelines('Pass Size: ' + str(Parameters.pass_size) + '\n')
+    outputtxt.writelines('Mut. Size: ' + str(Parameters.mut_size) + '\n')
+    outputtxt.writelines('Random Gen. Max. Iter: ' + str(Parameters.maxIter_gen) + '\n')
+    outputtxt.writelines('Max. Iter. Mut.: ' + str(Parameters.maxIter_mut) + '\n')
+    outputtxt.writelines('Conserved Moiety: ' + str(Parameters.conservedMoiety) + '\n')
+    outputtxt.writelines('Steady State Sel.: ' + str(Parameters.steadyStateSelections) + '\n')
+    outputtxt.writelines('Opti. Max. Iter.: ' + str(Parameters.optiMaxIter) + '\n')
+    outputtxt.writelines('Opti. Tol.: ' + str(Parameters.optiTol) + '\n')
+    outputtxt.writelines('Opti. Polish: ' + str(Parameters.optiPolish) + '\n')
+    outputtxt.writelines('Use Flux: ' + str(Parameters.FLUX) + '\n')
+    outputtxt.writelines('Random Seed: ' + str(Parameters.r_seed) + '\n')
+    outputtxt.writelines('Add Noise: ' + str(Parameters.NOISE) + '\n')
+    outputtxt.writelines('Noise Abs. Std.: ' + str(Parameters.ABS_NOISE_STD) + '\n')
+    outputtxt.writelines('Noise Rel. Std.: ' + str(Parameters.REL_NOISE_STD) + '\n')
+    outputtxt.close()
+    
+    
+def exportOutputs(models, dists, dist_list, Parameters, time, rl_track, path=None):
     """
     Export all outputs to specified path
     
@@ -42,8 +68,8 @@ def exportOutputs(models, dists, dist_list, settings, time, rl_track, path=None,
     outputtxt = open(os.path.join(outputdir, 'report.txt'), 'w')
     outputtxt.writelines('------------------------- REPORT -------------------------\n')
     outputtxt.writelines('RUN COMPLETE. HERE ARE SOME METRIC YOU MIGHT BE INTERESTED\n')
-    outputtxt.writelines('No. of Generations: ' + str(settings['n_gen']) + '\n')
-    outputtxt.writelines('Ensemble Size: ' + str(settings['ens_size']) + '\n')
+    outputtxt.writelines('No. of Generations: ' + str(Parameters.n_gen) + '\n')
+    outputtxt.writelines('Ensemble Size: ' + str(Parameters.ens_size) + '\n')
     outputtxt.writelines('No. of Collected Models: ' + str(len(models)) + '\n')
     outputtxt.writelines('Run Time: ' + str(time) + ' s\n')
     outputtxt.writelines('No. Stoich. Analyzed: ' + str(len(rl_track)) + '\n')
