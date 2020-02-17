@@ -34,7 +34,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'FFL_i'
+        modelType = 'FFL_m_i'
         
         
         # General settings ====================================================
@@ -224,7 +224,7 @@ if __name__ == '__main__':
         best_dist.append(dist_top[0])
         avg_dist.append(np.average(dist_top))
         med_dist.append(np.median(dist_top))
-        top5_dist.append(np.average(np.unique(dist_top)[:int(0.05*Parameters.ens_size)]))
+        top5_dist.append(np.average(np.unique(dist_top)[:max(int(0.05*Parameters.ens_size), 1)]))
         print("Minimum distance: " + str(best_dist[-1]))
         print("Top 5 distance: " + str(top5_dist[-1]))
         print("Average distance: " + str(avg_dist[-1]))
@@ -266,7 +266,7 @@ if __name__ == '__main__':
             best_dist.append(dist_top[0])
             avg_dist.append(np.average(dist_top))
             med_dist.append(np.median(dist_top))
-            top5_dist.append(np.average(np.unique(dist_top)[:int(0.05*Parameters.ens_size)]))
+            top5_dist.append(np.average(np.unique(dist_top)[:max(int(0.05*Parameters.ens_size), 1)]))
             print("In generation: " + str(n + 1))
             print("Minimum distance: " + str(best_dist[-1]))
             print("Top 5 distance: " + str(top5_dist[-1]))
@@ -300,14 +300,18 @@ if __name__ == '__main__':
             
             # Average residual
             if Parameters.SAVE_PLOT:
-                pt.plotResidual(Parameters.realModel, ens_model, ens_dist, 
+                pt.plotResidual(Parameters.realModel, 
+                                ens_model, 
+                                ens_dist, 
                                 SAVE_PATH=os.path.join(EXPORT_PATH, 'images/average_residual.pdf'))
             else:
                 pt.plotResidual(Parameters.realModel, ens_model, ens_dist)
                 
             # Distance histogram with KDE
             if Parameters.SAVE_PLOT:
-                pt.plotDistanceHistogramWithKDE(dist_top, log_dens, minInd, 
+                pt.plotDistanceHistogramWithKDE(dist_top, 
+                                                log_dens, 
+                                                minInd, 
                                                 SAVE_PATH=os.path.join(EXPORT_PATH, 
                                                                        'images/distance_hist_w_KDE.pdf'))
             else:
@@ -325,5 +329,10 @@ if __name__ == '__main__':
             else:
                 model_col = model_top[:kde_idx]
                 dist_col = dist_top[:kde_idx]
-            ioutils.exportOutputs(model_col, dist_col, [best_dist, avg_dist, med_dist, top5_dist], 
-                                  Parameters, t2-t1, rl_track, path=EXPORT_PATH)
+            ioutils.exportOutputs(model_col, 
+                                  dist_col, 
+                                  [best_dist, avg_dist, med_dist, top5_dist], 
+                                  Parameters, 
+                                  t2-t1, 
+                                  rl_track, 
+                                  path=EXPORT_PATH)
