@@ -221,126 +221,126 @@ def initialize(Parameters):
 def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
     global countf
     global counts
-#    
-#    eval_dist = np.empty(Parameters.mut_size)
-#    eval_model = np.empty(Parameters.mut_size, dtype='object')
-#    eval_rl = np.empty(Parameters.mut_size, dtype='object')
-#    
-#    for m in Parameters.mut_range:
-    o = 0
     
-    rl = ng.generateMutation(Parameters, listrl, listantStr)
+    eval_dist = np.empty(Parameters.mut_size)
+    eval_model = np.empty(Parameters.mut_size, dtype='object')
+    eval_rl = np.empty(Parameters.mut_size, dtype='object')
     
-    while ((rl in rl_track) and (o < Parameters.maxIter_mut)):
-        rl = ng.generateMutation(Parameters, listrl, listantStr)
-        o += 1
-    
-    if o >= Parameters.maxIter_mut:
-        eval_dist_m = listdist
-        eval_model_m = listantStr
-        eval_rl_m = listrl
-    else:
-        antStr = ng.generateAntimony(Parameters.realFloatingIds, 
-                                     Parameters.realBoundaryIds, 
-                                     Parameters.allIds,
-                                     rl, 
-                                     boundary_init=Parameters.realBoundaryVal,
-                                     floating_init=Parameters.realFloatingVal,
-                                     compInfo=Parameters.compInfo,
-                                     compVal=Parameters.compVal)
-        try:
-            r = te.loada(antStr)
-            r.steadyStateSelections = Parameters.steadyStateSelections
-            
-            r.steadyStateApproximate()
-            
-            p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
-            
-            if Parameters.FLUX:
-                res = scipy.optimize.differential_evolution(f1Flux, 
-                                                            args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
-                                                            bounds=p_bound, 
-                                                            maxiter=Parameters.optiMaxIter, 
-                                                            tol=Parameters.optiTol,
-                                                            polish=Parameters.optiPolish, 
-                                                            seed=Parameters.r_seed)
-            else:
-                res = scipy.optimize.differential_evolution(f1, 
-                                                            args=(r, Parameters.realConcCC), 
-                                                            bounds=p_bound, 
-                                                            maxiter=Parameters.optiMaxIter, 
-                                                            tol=Parameters.optiTol,
-                                                            polish=Parameters.optiPolish, 
-                                                            seed=Parameters.r_seed)
-                
-            if not res.success:
-                eval_dist_m = listdist
-                eval_model_m = listantStr
-                eval_rl_m = listrl
-            else:
+    for m in Parameters.mut_range:
+        o = 0
+        
+        rl = ng.generateMutation(Parameters, listrl[m], listantStr[m])
+        
+        while ((rl in rl_track) and (o < Parameters.maxIter_mut)):
+            rl = ng.generateMutation(Parameters, listrl[m], listantStr[m])
+            o += 1
+        
+        if o >= Parameters.maxIter_mut:
+            eval_dist[m] = listdist[m]
+            eval_model[m] = listantStr[m]
+            eval_rl[m] = listrl[m]
+        else:
+            antStr = ng.generateAntimony(Parameters.realFloatingIds, 
+                                         Parameters.realBoundaryIds, 
+                                         Parameters.allIds,
+                                         rl, 
+                                         boundary_init=Parameters.realBoundaryVal,
+                                         floating_init=Parameters.realFloatingVal,
+                                         compInfo=Parameters.compInfo,
+                                         compVal=Parameters.compVal)
+            try:
                 r = te.loada(antStr)
                 r.steadyStateSelections = Parameters.steadyStateSelections
-                r.setValues(r.getGlobalParameterIds(), res.x)
-                
-                r.steadyStateApproximate()
-                SS_i = r.getFloatingSpeciesConcentrations()
                 
                 r.steadyStateApproximate()
                 
-                if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
-                    eval_dist_m = listdist
-                    eval_model_m = listantStr
-                    eval_rl_m = listrl
+                p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
+                
+                if Parameters.FLUX:
+                    res = scipy.optimize.differential_evolution(f1Flux, 
+                                                                args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
+                                                                bounds=p_bound, 
+                                                                maxiter=Parameters.optiMaxIter, 
+                                                                tol=Parameters.optiTol,
+                                                                polish=Parameters.optiPolish, 
+                                                                seed=Parameters.r_seed)
                 else:
-                    concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
-                    if Parameters.FLUX:
-                        flux_i = r.getReactionRates()
+                    res = scipy.optimize.differential_evolution(f1, 
+                                                                args=(r, Parameters.realConcCC), 
+                                                                bounds=p_bound, 
+                                                                maxiter=Parameters.optiMaxIter, 
+                                                                tol=Parameters.optiTol,
+                                                                polish=Parameters.optiPolish, 
+                                                                seed=Parameters.r_seed)
                     
-                    if np.isnan(concCC_i).any():
-                        eval_dist_m = listdist
-                        eval_model_m = listantStr
-                        eval_rl_m = listrl
+                if not res.success:
+                    eval_dist[m] = listdist[m]
+                    eval_model[m] = listantStr[m]
+                    eval_rl[m] = listrl[m]
+                else:
+                    r = te.loada(antStr)
+                    r.steadyStateSelections = Parameters.steadyStateSelections
+                    r.setValues(r.getGlobalParameterIds(), res.x)
+                    
+                    r.steadyStateApproximate()
+                    SS_i = r.getFloatingSpeciesConcentrations()
+                    
+                    r.steadyStateApproximate()
+                    
+                    if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
+                        eval_dist[m] = listdist[m]
+                        eval_model[m] = listantStr[m]
+                        eval_rl[m] = listrl[m]
                     else:
-                        concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                        concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
                         if Parameters.FLUX:
-                            flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
+                            flux_i = r.getReactionRates()
                         
-                        concCC_i_row = concCC_i.rownames
-                        concCC_i_col = concCC_i.colnames
-                        concCC_i = concCC_i[np.argsort(concCC_i_row)]
-                        concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
-                        
-                        if Parameters.FLUX:
-                            flux_i = flux_i[np.argsort(concCC_i_col)]
-                        
-                            dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
-                                       (np.linalg.norm(Parameters.realFlux - flux_i))) * 
-                                    ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                              np.sign(np.array(concCC_i))))) + 
-                                     (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)),
-                                                              np.sign(np.array(flux_i)))))))
+                        if np.isnan(concCC_i).any():
+                            eval_dist[m] = listdist[m]
+                            eval_model[m] = listantStr[m]
+                            eval_rl[m] = listrl[m]
                         else:
-                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
-                                       np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
-                        
-                        if dist_i < listdist:
-                            eval_dist_m = dist_i
-                            r.reset()
-                            eval_model_m = r.getAntimony(current=True)
-                            eval_rl_m = rl
-                            rl_track.append(rl)
-                        else:
-                            eval_dist_m = listdist
-                            eval_model_m = listantStr
-                            eval_rl_m = listrl
-        except:
-            eval_dist_m = listdist
-            eval_model_m = listantStr
-            eval_rl_m = listrl
-    antimony.clearPreviousLoads()
+                            concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                            if Parameters.FLUX:
+                                flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
+                            
+                            concCC_i_row = concCC_i.rownames
+                            concCC_i_col = concCC_i.colnames
+                            concCC_i = concCC_i[np.argsort(concCC_i_row)]
+                            concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
+                            
+                            if Parameters.FLUX:
+                                flux_i = flux_i[np.argsort(concCC_i_col)]
+                            
+                                dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
+                                           (np.linalg.norm(Parameters.realFlux - flux_i))) * 
+                                        ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                                  np.sign(np.array(concCC_i))))) + 
+                                         (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)),
+                                                                  np.sign(np.array(flux_i)))))))
+                            else:
+                                dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+                                           np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+                                                               np.sign(np.array(concCC_i))))))
+                            
+                            if dist_i < listdist[m]:
+                                eval_dist[m] = dist_i
+                                r.reset()
+                                eval_model[m] = r.getAntimony(current=True)
+                                eval_rl[m] = rl
+                                rl_track.append(rl)
+                            else:
+                                eval_dist[m] = listdist[m]
+                                eval_model[m] = listantStr[m]
+                                eval_rl[m] = listrl[m]
+            except:
+                eval_dist[m] = listdist[m]
+                eval_model[m] = listantStr[m]
+                eval_rl[m] = listrl[m]
+        antimony.clearPreviousLoads()
 
-    return eval_dist_m, eval_model_m, eval_rl_m, rl_track
+    return eval_dist, eval_model, eval_rl, rl_track
 
 
 def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):

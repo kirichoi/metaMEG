@@ -9,8 +9,7 @@ import os, sys
 import tellurium as te
 import roadrunner
 import numpy as np
-from multiprocessing import Pool, Manager, Process
-from concurrent import futures
+from multiprocessing import Pool
 import time
 import core
 import ioutils
@@ -35,7 +34,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'FFL_m_i'
+        modelType = 'FFL_i'
         
         
         # General settings ====================================================
@@ -212,9 +211,6 @@ if __name__ == '__main__':
         
     #%%
         
-        manager = Manager()
-        rl_track = manager.list()
-    
         t1 = time.time()
         
         # Initialize
@@ -228,7 +224,7 @@ if __name__ == '__main__':
         best_dist.append(dist_top[0])
         avg_dist.append(np.average(dist_top))
         med_dist.append(np.median(dist_top))
-        top5_dist.append(np.average(np.unique(dist_top)[:max(int(0.05*Parameters.ens_size), 1)]))
+        top5_dist.append(np.average(np.unique(dist_top)[:int(0.05*Parameters.ens_size)]))
         print("Minimum distance: " + str(best_dist[-1]))
         print("Top 5 distance: " + str(top5_dist[-1]))
         print("Average distance: " + str(avg_dist[-1]))
@@ -237,7 +233,6 @@ if __name__ == '__main__':
         
         # TODO: Remove for loop
         for n in Parameters.n_range:
-            
             minind = np.argsort(ens_dist)[:Parameters.pass_size]
             tarind = np.delete(np.arange(Parameters.ens_size), minind)
             mut_p = 1/ens_dist[tarind]/np.sum(1/ens_dist[tarind])
@@ -246,30 +241,11 @@ if __name__ == '__main__':
             mut_ind = np.append(mut_ind, minind)
             mut_ind_inv = np.setdiff1d(np.arange(Parameters.ens_size), mut_ind)
             
-            eval_dist = np.empty(Parameters.mut_size)
-            eval_model = np.empty(Parameters.mut_size, dtype='object')
-            eval_rl = np.empty(Parameters.mut_size, dtype='object')
-            
-#            pool = Pool(processes=2)
-#            eval_dist[Parameters.mut_range], eval_model[Parameters.mut_range], eval_rl[Parameters.mut_range] = zip(*pool.map(core.mutate_and_evaluate, zip(Parameters,
-#                                                              ens_model[mut_ind[Parameters.mut_range]], 
-#                                                              ens_dist[mut_ind[Parameters.mut_range]], 
-#                                                              ens_rl[mut_ind[Parameters.mut_range]])))
-            
-            for m in Parameters.mut_range:
-                
-
-                eval_dist_m, eval_model_m, eval_rl_m, rl_track = core.mutate_and_evaluate(Parameters,
-                                                                              ens_model[mut_ind[m]], 
-                                                                              ens_dist[mut_ind[m]], 
-                                                                              ens_rl[mut_ind[m]],
-                                                                              rl_track)
-                eval_dist[m] = eval_dist_m
-                eval_model[m] = eval_model_m
-                eval_rl[m] = eval_rl_m
-#                rl_track = rl_track + rl_track_m
-#                
-                
+            eval_dist, eval_model, eval_rl, rl_track = core.mutate_and_evaluate(Parameters,
+                                                                      ens_model[mut_ind], 
+                                                                      ens_dist[mut_ind], 
+                                                                      ens_rl[mut_ind],
+                                                                      rl_track)
             ens_model[mut_ind] = eval_model
             ens_dist[mut_ind] = eval_dist
             ens_rl[mut_ind] = eval_rl
@@ -290,7 +266,7 @@ if __name__ == '__main__':
             best_dist.append(dist_top[0])
             avg_dist.append(np.average(dist_top))
             med_dist.append(np.median(dist_top))
-            top5_dist.append(np.average(np.unique(dist_top)[:max(int(0.05*Parameters.ens_size), 1)]))
+            top5_dist.append(np.average(np.unique(dist_top)[:int(0.05*Parameters.ens_size)]))
             print("In generation: " + str(n + 1))
             print("Minimum distance: " + str(best_dist[-1]))
             print("Top 5 distance: " + str(top5_dist[-1]))
@@ -324,19 +300,16 @@ if __name__ == '__main__':
             
             # Average residual
             if Parameters.SAVE_PLOT:
-                pt.plotResidual(Parameters.realModel,
-                                ens_model, 
-                                ens_dist, 
+                pt.plotResidual(Parameters.realModel, ens_model, ens_dist, 
                                 SAVE_PATH=os.path.join(EXPORT_PATH, 'images/average_residual.pdf'))
             else:
                 pt.plotResidual(Parameters.realModel, ens_model, ens_dist)
                 
             # Distance histogram with KDE
             if Parameters.SAVE_PLOT:
-                pt.plotDistanceHistogramWithKDE(dist_top, 
-                                                log_dens, 
-                                                minInd, 
-                                                SAVE_PATH=os.path.join(EXPORT_PATH, 'images/distance_hist_w_KDE.pdf'))
+                pt.plotDistanceHistogramWithKDE(dist_top, log_dens, minInd, 
+                                                SAVE_PATH=os.path.join(EXPORT_PATH, 
+                                                                       'images/distance_hist_w_KDE.pdf'))
             else:
                 pt.plotDistanceHistogramWithKDE(dist_top, log_dens, minInd)
                 
@@ -352,10 +325,5 @@ if __name__ == '__main__':
             else:
                 model_col = model_top[:kde_idx]
                 dist_col = dist_top[:kde_idx]
-            ioutils.exportOutputs(model_col, 
-                                  dist_col, 
-                                  [best_dist, avg_dist, med_dist, top5_dist], 
-                                  Parameters,
-                                  t2-t1, 
-                                  rl_track, 
-                                  path=EXPORT_PATH)
+            ioutils.exportOutputs(model_col, dist_col, [best_dist, avg_dist, med_dist, top5_dist], 
+                                  Parameters, t2-t1, rl_track, path=EXPORT_PATH)
