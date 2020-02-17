@@ -22,6 +22,7 @@ def plotAllProgress(listOfDistances, labels=None, SAVE_PATH=None):
     :param SAVE: flag for saving the output
     """
     
+    fig = plt.figure(figsize=(16, 6))
     for i in range(len(listOfDistances)):
         plt.plot(listOfDistances[i])
     if labels:
@@ -36,6 +37,7 @@ def plotAllProgress(listOfDistances, labels=None, SAVE_PATH=None):
         else:
             plt.savefig(SAVE_PATH, bbox_inches='tight')
     plt.show()
+    
 
 def plotProgress(distance, SAVE_PATH=None):
     """
@@ -46,6 +48,7 @@ def plotProgress(distance, SAVE_PATH=None):
     :param SAVE: flag for saving the output
     """
     
+    fig = plt.figure(figsize=(16, 6))
     plt.plot(distance)
     plt.xlabel("Generations", fontsize=15)
     plt.ylabel("Distance", fontsize=15)
@@ -57,6 +60,7 @@ def plotProgress(distance, SAVE_PATH=None):
         else:
             plt.savefig(SAVE_PATH, bbox_inches='tight')
     plt.show()
+    
 
 def plotResidual(realModel, ens_model, ens_dist, SAVE_PATH=None):
     """
@@ -85,6 +89,7 @@ def plotResidual(realModel, ens_model, ens_dist, SAVE_PATH=None):
     
     ave_diff = np.average(top_diff[:int(len(ens_model)*percentage)], axis=0)
     
+    fig = plt.figure(figsize=(12, 8))
     plt.plot(ave_diff)
     plt.xlabel("Time (s)", fontsize=15)
     plt.ylabel("Residual", fontsize=15)
@@ -98,14 +103,17 @@ def plotResidual(realModel, ens_model, ens_dist, SAVE_PATH=None):
             plt.savefig(SAVE_PATH, bbox_inches='tight')
     plt.show()
     
+    
 def plotHistogram():
     """
     """
+    
     
 def plotDistanceHistogram(ens_dist, nbin=25, SAVE_PATH=None):
     """
     """
     
+    fig = plt.figure(figsize=(12, 8))
     plt.hist(ens_dist, bins=nbin, density=True)
     plt.xlabel("Distance", fontsize=15)
     plt.ylabel("Normalized Frequency", fontsize=15)
@@ -118,10 +126,12 @@ def plotDistanceHistogram(ens_dist, nbin=25, SAVE_PATH=None):
             plt.savefig(SAVE_PATH, bbox_inches='tight')
     plt.show()
 
+
 def plotDistanceHistogramWithKDE(dist_top, log_dens, minInd, nbin=40, SAVE_PATH=None):
     """
     """
     
+    fig = plt.figure(figsize=(12, 8))
     hist = plt.hist(dist_top, bins=nbin, density=True)
     plt.vlines(dist_top[minInd[0][0]], 0, np.max(hist[0]), linestyles='dashed')
     plt.xlabel("Distance", fontsize=15)
@@ -134,6 +144,7 @@ def plotDistanceHistogramWithKDE(dist_top, log_dens, minInd, nbin=40, SAVE_PATH=
         else:
             plt.savefig(SAVE_PATH, bbox_inches='tight')
     plt.show()
+
 
 def plotNetwork(path, scale=1.5):
     """
@@ -181,3 +192,33 @@ def plotNetworkEnsemble(path, index=None, threshold=0., scale=1.5):
     net.drawWeightedDiagram()
 
 
+def plotNetworkComparison(path1, path2, title=None, scale=1.):
+    """
+    Plot two network diagrams side-by-side
+    
+    :param path1: path or Antimony string of a model
+    :param path2: path or Antimony string of a model
+    :param scale: diagram scale
+    """
+    
+    import netplotlib as npl
+    
+    if title != None:
+        assert(len(title) == 2)
+    else:
+        title = ['Original', 'Best Output']
+    
+    fig, ax = plt.subplots(ncols=2, figsize=(26,14))
+    ax[0].axis('off')
+    ax[0].set_title(title[0], fontsize=15)
+    net1 = npl.Network(path1)
+    net1.customAxis = ax[0]
+    net1.draw()
+    ax[1].axis('off')
+    ax[1].set_title(title[1], fontsize=15)
+    net2 = npl.Network(path2)
+    net2.customAxis = ax[1]
+    net2.draw()
+    
+    
+    
