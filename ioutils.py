@@ -81,12 +81,12 @@ def exportOutputs(models, dists, dist_list, Parameters, time, rl_track, path=Non
         modeltxt.close()
     
 
-def readSettings(settingsPath):
+def importSettings(settingsPath):
     """
     """
 
 
-def readModels(modelsPath):
+def importModels(modelsPath):
     """
     Read model files
     
@@ -105,7 +105,7 @@ def readModels(modelsPath):
     return antstr
 
 
-def readData(dataPath):
+def importData(dataPath):
     """
     Read data encoded in csv.
     
