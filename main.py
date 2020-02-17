@@ -34,13 +34,13 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'FFL_m_i'
+        modelType = 'Linear_m_i'
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 10
+        n_gen = 20
         # Size of output ensemble
         ens_size = 10
         # Number of models passed on the next generation without mutation
@@ -84,6 +84,8 @@ if __name__ == '__main__':
         PLOT = True
         # Flag for saving plots
         SAVE_PLOT = True
+        # Flag for plotting the best fitted network model
+        PLOT_NETWORK = True
         
         
         # Data settings =======================================================
@@ -95,10 +97,10 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = True
         # Path to save the output
-        EXPORT_PATH = './USE/output_FFL_i_mp_ref'
+        EXPORT_PATH = './USE/output_Linear_m_i_demo'
         
         # Flag to run algorithm
-        RUN = True
+        RUN = False
         
 
 #%%    
@@ -316,6 +318,9 @@ if __name__ == '__main__':
                                                                        'images/distance_hist_w_KDE.pdf'))
             else:
                 pt.plotDistanceHistogramWithKDE(dist_top, log_dens, minInd)
+            
+            if Parameters.PLOT_NETWORK:
+                pt.plotNetworkComparison(Parameters.realModel, model_top[0], scale=1)
                 
             
     #%%
