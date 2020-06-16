@@ -617,7 +617,7 @@ def generateCompartmentFromAntimony(antStr):
 
 
 
-def generateSimpleRateLaw(rl, allId, Jind):
+def generateSimpleRateLaw(rl, allId, Jind, simple=True):
     
     Klist = []
     
@@ -631,7 +631,10 @@ def generateSimpleRateLaw(rl, allId, Jind):
         rateLaw = 'Kf' + str(Jind)
         Klist.append('Kf' + str(Jind))
     else:
-        T = T + '(Kf' + str(Jind) + '*'
+        if simple:
+            T = T + 'Kf' + str(Jind) + '*('
+        else:
+            T = T + '(Kf' + str(Jind) + '*'
         Klist.append('Kf' + str(Jind))
         
         for i in range(len(rl[Jind][3])):
@@ -643,9 +646,12 @@ def generateSimpleRateLaw(rl, allId, Jind):
                 T = T + '*'
         
         if rl[Jind][2] == Reversibility.REVERSIBLE:
-            T = T + ' - Kr' + str(Jind) + '*'
-            Klist.append('Kr' + str(Jind))
-            
+            if simple:
+                T = T + ' - '
+            else:
+                T = T + ' - Kr' + str(Jind) + '*'
+                Klist.append('Kr' + str(Jind))
+                
             for i in range(len(rl[Jind][4])):
                 T = T + '(' + str(allId[rl[Jind][4][i][1]])
                 if rl[Jind][4][i][0] != 1:
@@ -797,9 +803,9 @@ def generateParameterBoundary(glgp):
     
     for i in range(len(glgp)):
         if glgp[i].startswith('Kf'):
-            pBound.append((1e-3, 100.))
+            pBound.append((1e-1, 10.))
         elif glgp[i].startswith('Kr'):
-            pBound.append((1e-3, 100.))
+            pBound.append((1e-1, 10.))
         elif glgp[i].startswith('Ka'):
             pBound.append((1e-3, 100.))
         elif glgp[i].startswith('Ki'):
