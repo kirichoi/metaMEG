@@ -89,7 +89,7 @@ def plotResidual(realModel, ens_model, ens_dist, SAVE_PATH=None):
     
     ave_diff = np.average(top_diff[:int(len(ens_model)*percentage)], axis=0)
     
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(10, 6))
     plt.plot(ave_diff)
     plt.xlabel("Time (s)", fontsize=15)
     plt.ylabel("Residual", fontsize=15)
@@ -113,7 +113,7 @@ def plotDistanceHistogram(ens_dist, nbin=25, SAVE_PATH=None):
     """
     """
     
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(10, 6))
     plt.hist(ens_dist, bins=nbin, density=True)
     plt.xlabel("Distance", fontsize=15)
     plt.ylabel("Normalized Frequency", fontsize=15)
@@ -127,13 +127,13 @@ def plotDistanceHistogram(ens_dist, nbin=25, SAVE_PATH=None):
     plt.show()
 
 
-def plotDistanceHistogramWithKDE(dist_top, log_dens, minInd, nbin=40, SAVE_PATH=None):
+def plotDistanceHistogramWithKDE(dist_top, kde_xarr, minInd, nbin=40, SAVE_PATH=None):
     """
     """
     
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(10, 6))
     hist = plt.hist(dist_top, bins=nbin, density=True)
-    plt.vlines(dist_top[minInd[0][0]], 0, np.max(hist[0]), linestyles='dashed')
+    plt.vlines(kde_xarr[minInd[0][0]], 0, np.max(hist[0]), linestyles='dashed')
     plt.xlabel("Distance", fontsize=15)
     plt.ylabel("Normalized Frequency", fontsize=15)
     plt.xticks(fontsize=15)
@@ -208,16 +208,18 @@ def plotNetworkComparison(path1, path2, title=None, scale=1.):
     else:
         title = ['Original', 'Best Output']
     
-    fig, ax = plt.subplots(ncols=2, figsize=(26,14))
+    fig, ax = plt.subplots(ncols=2, figsize=(22,12))
     ax[0].axis('off')
     ax[0].set_title(title[0], fontsize=15)
     net1 = npl.Network(path1)
     net1.customAxis = ax[0]
+    net1.scale=scale
     net1.draw()
     ax[1].axis('off')
     ax[1].set_title(title[1], fontsize=15)
     net2 = npl.Network(path2)
     net2.customAxis = ax[1]
+    net1.scale=scale
     net2.draw()
     
     
