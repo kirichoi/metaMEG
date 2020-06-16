@@ -34,15 +34,16 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
+        # modelType = 'FFL_m_i'
         modelType = r'D:\Archive\OneDrive\Test Models\SBML Models\metaMEG_test.xml'
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 20
+        n_gen = 500
         # Size of output ensemble
-        ens_size = 10
+        ens_size = 200
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -61,7 +62,7 @@ if __name__ == '__main__':
         
         # Maximum iteration allowed for optimizer
         optiMaxIter = 100
-        optiTol = 1.
+        optiTol = 10.
         optiPolish = False
         FLUX = False
         workers = 1
@@ -313,7 +314,7 @@ if __name__ == '__main__':
             # Distance histogram with KDE
             if Parameters.SAVE_PLOT:
                 pt.plotDistanceHistogramWithKDE(dist_top, 
-                                                log_dens, 
+                                                kde_xarr, 
                                                 minInd, 
                                                 SAVE_PATH=os.path.join(EXPORT_PATH, 
                                                                        'images/distance_hist_w_KDE.pdf'))

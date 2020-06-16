@@ -73,7 +73,10 @@ def plotResidual(realModel, ens_model, ens_dist, SAVE_PATH=None):
     :param SAVE: flag for saving the output
     """
     
-    r_real = te.loada(realModel)
+    try:
+        r_real = te.loada(realModel)
+    except:
+        r_real = te.loads(realModel)
     result_real = r_real.simulate(0, 100, 100)
     
     top_result = []
