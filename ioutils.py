@@ -438,6 +438,6 @@ def testModels(modelType):
     elif modelType == 'GLYCO':
         realModel = r"./models/MODEL1505110000_ant_mod.txt"
     else:
-        raise Exception("Requested model not found")
+        realModel = modelType
         
     return realModel
