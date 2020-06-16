@@ -34,7 +34,7 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        modelType = 'Linear_m_i'
+        modelType = r'D:\Archive\OneDrive\Test Models\SBML Models\metaMEG_test.xml'
         
         
         # General settings ====================================================
@@ -64,6 +64,7 @@ if __name__ == '__main__':
         optiTol = 1.
         optiPolish = False
         FLUX = False
+        workers = 1
         
         
         # Random settings =====================================================
@@ -97,10 +98,10 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = True
         # Path to save the output
-        EXPORT_PATH = './USE/output_Linear_m_i_demo'
+        EXPORT_PATH = './USE/output_sauro_demo'
         
         # Flag to run algorithm
-        RUN = False
+        RUN = True
         
 
 #%%    
@@ -130,8 +131,8 @@ if __name__ == '__main__':
         allIds.sort()
         realFloatingIdsInd = np.searchsorted(allIds, realFloatingIds)
         realBoundaryIdsInd = np.searchsorted(allIds, realBoundaryIds)
-        realFloatingVal = realRR.getFloatingSpeciesConcentrations()
-        realBoundaryVal = realRR.getBoundarySpeciesConcentrations()
+        realFloatingVal = realRR.getFloatingSpeciesConcentrations()[np.argsort(realRR.getFloatingSpeciesIds())]
+        realBoundaryVal = realRR.getBoundarySpeciesConcentrations()[np.argsort(realRR.getBoundarySpeciesIds())]
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
         if steadyStateSelections != None:
