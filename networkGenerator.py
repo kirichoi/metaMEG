@@ -23,10 +23,10 @@ class Reversibility:
     REVERSIBLE = 1
     
 class RLP:
-    Default = 0.73
-    Inhib = 0.12
-    Activ = 0.12
-    Inhibactiv = 0.03
+    Default = 0.78
+    Inhib = 0.1
+    Activ = 0.1
+    Inhibactiv = 0.02
 
 
 def pickReactionType(remove=None):
@@ -773,9 +773,9 @@ def generateAntimony(fids, bids, allIds, rl, floating_init=None, boundary_init=N
         elif Klist_f[i].startswith('Kr'):
             antStr = antStr + Klist_f[i] + ' = 0.5\n'
         elif Klist_f[i].startswith('Ka'):
-            antStr = antStr + Klist_f[i] + ' = 1\n'
+            antStr = antStr + Klist_f[i] + ' = 0.1\n'
         elif Klist_f[i].startswith('Ki'):
-            antStr = antStr + Klist_f[i] + ' = 1\n'
+            antStr = antStr + Klist_f[i] + ' = 0.1\n'
         
     # Initialize boundary species
     antStr = antStr + '\n'
@@ -789,7 +789,7 @@ def generateAntimony(fids, bids, allIds, rl, floating_init=None, boundary_init=N
     # Initialize floating species
     if type(boundary_init) == type(None):
         for index, find in enumerate(fids):
-            antStr = antStr + str(find) + ' = ' + '1\n'
+            antStr = antStr + str(find) + ' = ' + str(np.random.random()) + '\n'
     else:
         for index, find in enumerate(fids):
             antStr = antStr + str(find) + ' = ' + str(floating_init[index]) + '\n'
