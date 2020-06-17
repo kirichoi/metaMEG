@@ -23,10 +23,10 @@ class Reversibility:
     REVERSIBLE = 1
     
 class RLP:
-    Default = 0.78
-    Inhib = 0.1
-    Activ = 0.1
-    Inhibactiv = 0.02
+    Default = 0.89
+    Inhib = 0.05
+    Activ = 0.05
+    Inhibactiv = 0.01
 
 
 def pickReactionType(remove=None):
@@ -260,7 +260,7 @@ def generateReactionListFromAntimony(antStr):
     boundaryId = r.getBoundarySpeciesIds()
     floatingId = r.getFloatingSpeciesIds()
     allId = floatingId + boundaryId
-    allId.sort()
+    # allId.sort()
     nr = r.getNumReactions()
     
     # prepare symbols for sympy
@@ -438,7 +438,7 @@ def generateKnownReactionListFromAntimony(antStr):
     boundaryId = r.getBoundarySpeciesIds()
     floatingId = r.getFloatingSpeciesIds()
     allId = floatingId + boundaryId
-    allId.sort()
+    # allId.sort()
     nr = r.getNumReactions()
     
     # prepare symbols for sympy
@@ -663,25 +663,25 @@ def generateSimpleRateLaw(rl, allId, Jind, simple=True):
         T = T + ')'
             
         # D
-        D = D + '1 + '
+        # D = D + '1 + '
         
-        for i in range(len(rl[Jind][3])):
-            D = D + '(' + str(allId[rl[Jind][3][i][1]])
-            if rl[Jind][3][i][0] != 1:
-                D = D + '^' + str(rl[Jind][3][i][0])
-            D = D + ')'
-            if i < len(rl[Jind][3]) - 1:
-                D = D + '*'
+        # for i in range(len(rl[Jind][3])):
+        #     D = D + '(' + str(allId[rl[Jind][3][i][1]])
+        #     if rl[Jind][3][i][0] != 1:
+        #         D = D + '^' + str(rl[Jind][3][i][0])
+        #     D = D + ')'
+        #     if i < len(rl[Jind][3]) - 1:
+        #         D = D + '*'
         
-        if rl[Jind][2] == Reversibility.REVERSIBLE:
-            D = D + ' + '
-            for i in range(len(rl[Jind][4])):
-                D = D + '(' + str(allId[rl[Jind][4][i][1]])
-                if rl[Jind][4][i][0] != 1:
-                    D = D + '^' + str(rl[Jind][4][i][0])
-                D = D + ')'
-                if i < len(rl[Jind][4]) - 1:
-                    D = D + '*'
+        # if rl[Jind][2] == Reversibility.REVERSIBLE:
+        #     D = D + ' + '
+        #     for i in range(len(rl[Jind][4])):
+        #         D = D + '(' + str(allId[rl[Jind][4][i][1]])
+        #         if rl[Jind][4][i][0] != 1:
+        #             D = D + '^' + str(rl[Jind][4][i][0])
+        #         D = D + ')'
+        #         if i < len(rl[Jind][4]) - 1:
+        #             D = D + '*'
         
         # Activation
         if (len(rl[Jind][5]) > 0):
@@ -697,7 +697,7 @@ def generateSimpleRateLaw(rl, allId, Jind, simple=True):
                 Klist.append('Ki' + str(Jind) + str(i))
                 INH = INH + str(allId[rl[Jind][6][i]]) + '))*'
         
-        rateLaw = ACT + INH + T + '/(' + D + ')'
+        rateLaw = ACT + INH + T# + '/(' + D + ')'
         
     return rateLaw, Klist
 
