@@ -43,7 +43,7 @@ if __name__ == '__main__':
         # Number of generations
         n_gen = 500
         # Size of output ensemble
-        ens_size = 200
+        ens_size = 100
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         
         # Maximum iteration allowed for optimizer
         optiMaxIter = 100
-        optiTol = 10.
+        optiTol = 1.
         optiPolish = False
         FLUX = False
         workers = 1
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         EXPORT_PATH = './USE/output_sauro_demo'
         
         # Flag to run algorithm
-        RUN = True
+        RUN = False
         
 
 #%%    
@@ -126,18 +126,20 @@ if __name__ == '__main__':
         
         realNumBoundary = realRR.getNumBoundarySpecies()
         realNumFloating = realRR.getNumFloatingSpecies() 
-        realFloatingIds = np.sort(realRR.getFloatingSpeciesIds())
-        realBoundaryIds = np.sort(realRR.getBoundarySpeciesIds())
+        # realFloatingIds = np.sort(realRR.getFloatingSpeciesIds())
+        # realBoundaryIds = np.sort(realRR.getBoundarySpeciesIds())
+        realFloatingIds = realRR.getFloatingSpeciesIds()
+        realBoundaryIds = realRR.getBoundarySpeciesIds()
         allIds = realRR.getFloatingSpeciesIds() + realRR.getBoundarySpeciesIds()
-        allIds.sort()
+        # allIds.sort()
         realFloatingIdsInd = np.searchsorted(allIds, realFloatingIds)
         realBoundaryIdsInd = np.searchsorted(allIds, realBoundaryIds)
-        realFloatingVal = realRR.getFloatingSpeciesConcentrations()[np.argsort(realRR.getFloatingSpeciesIds())]
-        realBoundaryVal = realRR.getBoundarySpeciesConcentrations()[np.argsort(realRR.getBoundarySpeciesIds())]
+        realFloatingVal = realRR.getFloatingSpeciesConcentrations()#[np.argsort(realRR.getFloatingSpeciesIds())]
+        realBoundaryVal = realRR.getBoundarySpeciesConcentrations()#[np.argsort(realRR.getBoundarySpeciesIds())]
         realGlobalParameterIds = realRR.getGlobalParameterIds()
         
         if steadyStateSelections != None:
-            realRR.steadyStateSelections = np.sort(steadyStateSelections)
+            realRR.steadyStateSelections = steadyStateSelections#np.sort(steadyStateSelections)
         else:
             steadyStateSelections = realFloatingIds
             realRR.steadyStateSelections = realFloatingIds
@@ -154,23 +156,23 @@ if __name__ == '__main__':
         realConcCC = realRR.getScaledConcentrationControlCoefficientMatrix()
         
         if FLUX:
-            realFluxCC[np.abs(realFluxCC) < 1e-6] = 0
-        realConcCC[np.abs(realConcCC) < 1e-6] = 0
+            realFluxCC[np.abs(realFluxCC) < 1e-12] = 0
+        realConcCC[np.abs(realConcCC) < 1e-12] = 0
         
         # Ordering
-        if FLUX:
-            realFluxCCrow = realFluxCC.rownames
-            realFluxCCcol = realFluxCC.colnames
-            realFluxCC = realFluxCC[np.argsort(realFluxCCrow)]
-            realFluxCC = realFluxCC[:,np.argsort(realFluxCCcol)]
+        # if FLUX:
+        #     realFluxCCrow = realFluxCC.rownames
+        #     realFluxCCcol = realFluxCC.colnames
+        #     # realFluxCC = realFluxCC[np.argsort(realFluxCCrow)]
+        #     realFluxCC = realFluxCC[:,np.argsort(realFluxCCcol)]
         
-        realConcCCrow = realConcCC.rownames
-        realConcCCcol = realConcCC.colnames
-        realConcCC = realConcCC[np.argsort(realConcCCrow)]
-        realConcCC = realConcCC[:,np.argsort(realConcCCcol)]
+        # realConcCCrow = realConcCC.rownames
+        # realConcCCcol = realConcCC.colnames
+        # realConcCC = realConcCC[np.argsort(realConcCCrow)]
+        # realConcCC = realConcCC[:,np.argsort(realConcCCcol)]
         
-        if FLUX:
-            realFlux = realFlux[np.argsort(realRR.getReactionIds())]
+        # if FLUX:
+        #     realFlux = realFlux[np.argsort(realRR.getReactionIds())]
         
         ns = realNumBoundary + realNumFloating # Number of species
         nr = realRR.getNumReactions() # Number of reactions
