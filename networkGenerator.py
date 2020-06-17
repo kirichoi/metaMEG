@@ -102,7 +102,7 @@ def generateReactionList(Parameters):
                 act_id = []
                 regType = RegulationType.DEFAULT
             else:
-                act_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.75, 0.2, 0.05])).tolist()
+                act_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.75, 0.2, 0.05]))).tolist()
         else:
             delList = np.concatenate([rct_id, prd_id])
             delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
@@ -807,9 +807,9 @@ def generateParameterBoundary(glgp):
         elif glgp[i].startswith('Kr'):
             pBound.append((1e-1, 10.))
         elif glgp[i].startswith('Ka'):
-            pBound.append((1e-3, 100.))
+            pBound.append((1e-3, 10.))
         elif glgp[i].startswith('Ki'):
-            pBound.append((1e-3, 100.))
+            pBound.append((1e-3, 10.))
 
     return pBound
     
