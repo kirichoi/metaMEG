@@ -16,6 +16,13 @@ import time
 import copy
 
 
+def distfunc1(CC1, CC2):
+    d1 = np.linalg.norm(CC1 - CC2)
+    d2 = 1 + np.sum(np.not_equal(np.sign(np.array(CC1)), np.sign(np.array(CC2))))
+    
+    return d1*d2
+
+
 def f1(k_list, *args):
     global counts
     global countf
@@ -37,10 +44,7 @@ def f1(k_list, *args):
             # objCCC = objCCC[:,np.argsort(objCCC_col)]
             # objCCC = objCCC[np.ix_(np.argsort(objCCC.rownames), np.argsort(objCCC.colnames))]
             
-            dist_obj = ((np.linalg.norm(args[1] - objCCC))*(1 + 
-                         np.sum(np.not_equal(np.sign(np.array(args[1])), 
-                                             np.sign(np.array(objCCC))))))
-            
+            dist_obj = distfunc1(args[1], objCC)
     except:
         countf += 1
         dist_obj = 10000
@@ -87,6 +91,7 @@ def f1Flux(k_list, *args):
     
     return dist_obj
 
+
 def callbackF(X, convergence=0.):
     global counts
     global countf
@@ -94,128 +99,128 @@ def callbackF(X, convergence=0.):
     return False
 
 
-def initialize(Parameters):
-    global countf
-    global counts
+# def initialize(Parameters):
+#     global countf
+#     global counts
     
-    numBadModels = 0
-    numGoodModels = 0
-    numIter = 0
+#     numBadModels = 0
+#     numGoodModels = 0
+#     numIter = 0
     
-    ens_dist = np.empty(Parameters.ens_size)
-    ens_model = np.empty(Parameters.ens_size, dtype='object')
-    ens_rl = np.empty(Parameters.ens_size, dtype='object')
-    rl_track = []
-    rl_track.append(Parameters.knownReactionList)
+#     ens_dist = np.empty(Parameters.ens_size)
+#     ens_model = np.empty(Parameters.ens_size, dtype='object')
+#     ens_rl = np.empty(Parameters.ens_size, dtype='object')
+#     rl_track = []
+#     rl_track.append(Parameters.knownReactionList)
     
-    # Initial Random generation
-    while (numGoodModels < Parameters.ens_size):
-        # Ensure no redundant model
-        rl = ng.generateReactionList(Parameters)
-        while rl in rl_track:
-            rl = ng.generateReactionList(Parameters)
-        antStr = ng.generateAntimony(Parameters.realFloatingIds, 
-                                      Parameters.realBoundaryIds, 
-                                      Parameters.allIds,
-                                      rl, 
-                                      boundary_init=Parameters.realBoundaryVal,
-                                      floating_init=Parameters.realFloatingVal,
-                                      compInfo=Parameters.compInfo,
-                                      compVal=Parameters.compVal)
-        try:
-            r = te.loada(antStr)
-            r.steadyStateSelections = Parameters.steadyStateSelections
+#     # Initial Random generation
+#     while (numGoodModels < Parameters.ens_size):
+#         # Ensure no redundant model
+#         rl = ng.generateReactionList(Parameters)
+#         while rl in rl_track:
+#             rl = ng.generateReactionList(Parameters)
+#         antStr = ng.generateAntimony(Parameters.realFloatingIds, 
+#                                       Parameters.realBoundaryIds, 
+#                                       Parameters.allIds,
+#                                       rl, 
+#                                       boundary_init=Parameters.realBoundaryVal,
+#                                       floating_init=Parameters.realFloatingVal,
+#                                       compInfo=Parameters.compInfo,
+#                                       compVal=Parameters.compVal)
+#         try:
+#             r = te.loada(antStr)
+#             r.steadyStateSelections = Parameters.steadyStateSelections
 
-            counts = 0
-            countf = 0
+#             counts = 0
+#             countf = 0
             
-            r.steadyStateApproximate()
-            p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
-            if Parameters.FLUX:
-                res = scipy.optimize.differential_evolution(f1Flux, 
-                                                            args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
-                                                            bounds=p_bound, 
-                                                            maxiter=Parameters.optiMaxIter, 
-                                                            tol=Parameters.optiTol,
-                                                            polish=Parameters.optiPolish, 
-                                                            seed=Parameters.r_seed)
-            else:
-                res = scipy.optimize.differential_evolution(f1, 
-                                                            args=(r, Parameters.realConcCC), 
-                                                            bounds=p_bound, 
-                                                            maxiter=Parameters.optiMaxIter, 
-                                                            tol=Parameters.optiTol,
-                                                            polish=Parameters.optiPolish, 
-                                                            seed=Parameters.r_seed)
+#             r.steadyStateApproximate()
+#             p_bound = ng.generateParameterBoundary(r.getGlobalParameterIds())
+#             if Parameters.FLUX:
+#                 res = scipy.optimize.differential_evolution(f1Flux, 
+#                                                             args=(r, Parameters.realConcCC, Parameters.realFlux, Parameters.FLUX), 
+#                                                             bounds=p_bound, 
+#                                                             maxiter=Parameters.optiMaxIter, 
+#                                                             tol=Parameters.optiTol,
+#                                                             polish=Parameters.optiPolish, 
+#                                                             seed=Parameters.r_seed)
+#             else:
+#                 res = scipy.optimize.differential_evolution(f1, 
+#                                                             args=(r, Parameters.realConcCC), 
+#                                                             bounds=p_bound, 
+#                                                             maxiter=Parameters.optiMaxIter, 
+#                                                             tol=Parameters.optiTol,
+#                                                             polish=Parameters.optiPolish, 
+#                                                             seed=Parameters.r_seed)
             
-            if not res.success:
-                numBadModels += 1
-            else:
-                # TODO: Might be able to cut the bottom part by simply using 
-                # the obj func value from optimizer
-                r = te.loada(antStr)
-                r.steadyStateSelections = Parameters.steadyStateSelections
-                r.setValues(r.getGlobalParameterIds(), res.x)
+#             if not res.success:
+#                 numBadModels += 1
+#             else:
+#                 # TODO: Might be able to cut the bottom part by simply using 
+#                 # the obj func value from optimizer
+#                 r = te.loada(antStr)
+#                 r.steadyStateSelections = Parameters.steadyStateSelections
+#                 r.setValues(r.getGlobalParameterIds(), res.x)
                 
-                r.steadyStateApproximate()
-                SS_i = r.getFloatingSpeciesConcentrations()
+#                 r.steadyStateApproximate()
+#                 SS_i = r.getFloatingSpeciesConcentrations()
                 
-                r.steadyStateApproximate()
+#                 r.steadyStateApproximate()
                 
-                if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
-                    numBadModels += 1
-                else:
-                    concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
-                    if Parameters.FLUX:
-                        flux_i = r.getReactionRates()
+#                 if np.any(SS_i < 1e-5) or np.any(SS_i > 1e5):
+#                     numBadModels += 1
+#                 else:
+#                     concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
+#                     if Parameters.FLUX:
+#                         flux_i = r.getReactionRates()
         
-                    if np.isnan(concCC_i).any():
-                        numBadModels += 1
-                    else:
-                        concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
-                        if Parameters.FLUX:
-                            flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
+#                     if np.isnan(concCC_i).any():
+#                         numBadModels += 1
+#                     else:
+#                         concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+#                         if Parameters.FLUX:
+#                             flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
                         
-                        # concCC_i_row = concCC_i.rownames
-                        # concCC_i_col = concCC_i.colnames
-                        # concCC_i = concCC_i[np.argsort(concCC_i_row)]
-                        # concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
+#                         # concCC_i_row = concCC_i.rownames
+#                         # concCC_i_col = concCC_i.colnames
+#                         # concCC_i = concCC_i[np.argsort(concCC_i_row)]
+#                         # concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
                         
-                        if Parameters.FLUX:
-                            # flux_i = flux_i[np.argsort(concCC_i_col)]
+#                         if Parameters.FLUX:
+#                             # flux_i = flux_i[np.argsort(concCC_i_col)]
                         
-                            dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
-                                      (np.linalg.norm(Parameters.realFlux - flux_i))) * 
-                                    ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                              np.sign(np.array(concCC_i))))) + 
-                                     (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
-                                                              np.sign(np.array(flux_i)))))))
-                        else:
-                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
-                                       np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
+#                             dist_i = (((np.linalg.norm(Parameters.realConcCC - concCC_i)) + 
+#                                       (np.linalg.norm(Parameters.realFlux - flux_i))) * 
+#                                     ((1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+#                                                               np.sign(np.array(concCC_i))))) + 
+#                                      (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
+#                                                               np.sign(np.array(flux_i)))))))
+#                         else:
+#                             dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
+#                                        np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
+#                                                            np.sign(np.array(concCC_i))))))
                         
-                        ens_dist[numGoodModels] = dist_i
-                        r.reset()
-                        ens_model[numGoodModels] = r.getAntimony(current=True)
-                        ens_rl[numGoodModels] = rl
-                        rl_track.append(rl)
+#                         ens_dist[numGoodModels] = dist_i
+#                         r.reset()
+#                         ens_model[numGoodModels] = r.getAntimony(current=True)
+#                         ens_rl[numGoodModels] = rl
+#                         rl_track.append(rl)
                         
-                        numGoodModels = numGoodModels + 1
-        except:
-            numBadModels = numBadModels + 1
-        antimony.clearPreviousLoads()
-        numIter = numIter + 1
-        if int(numIter/1000) == (numIter/1000):
-            print("Number of iterations = " + str(numIter))
-        if int(numIter/10000) == (numIter/10000):
-            print("Number of good models = " + str(numGoodModels))
+#                         numGoodModels = numGoodModels + 1
+#         except:
+#             numBadModels = numBadModels + 1
+#         antimony.clearPreviousLoads()
+#         numIter = numIter + 1
+#         if int(numIter/1000) == (numIter/1000):
+#             print("Number of iterations = " + str(numIter))
+#         if int(numIter/10000) == (numIter/10000):
+#             print("Number of good models = " + str(numGoodModels))
     
-    print("In generation: 1")
-    print("Number of total iterations = " + str(numIter))
-    print("Number of bad models = " + str(numBadModels))
+#     print("In generation: 1")
+#     print("Number of total iterations = " + str(numIter))
+#     print("Number of bad models = " + str(numBadModels))
     
-    return ens_dist, ens_model, ens_rl, rl_track
+#     return ens_dist, ens_model, ens_rl, rl_track
 
 def initialize(Parameters):
     global countf
@@ -286,9 +291,7 @@ def initialize(Parameters):
                                  (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
                                                           np.sign(np.array(flux_i)))))))
                     else:
-                        dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
-                                   np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                       np.sign(np.array(concCC_i))))))
+                        dist_i = distfunc1(Parameters.realConcCC, concCC_i)
                     
                     ens_dist[numGoodModels] = dist_i
                     r.reset()
@@ -509,9 +512,7 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                                      (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)),
                                                               np.sign(np.array(flux_i)))))))
                         else:
-                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
-                                       np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
+                            dist_i = distfunc1(Parameters.realConcCC, concCC_i)
                         
                         if dist_i < listdist[m]:
                             eval_dist[m] = dist_i
@@ -733,9 +734,7 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                                      (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
                                                               np.sign(np.array(flux_i)))))))
                         else:
-                            dist_i = ((np.linalg.norm(Parameters.realConcCC - concCC_i))*(1 + 
-                                       np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), 
-                                                           np.sign(np.array(concCC_i))))))
+                            dist_i = distfunc1(Parameters.realConcCC, concCC_i)
                             
                         if dist_i < listDist[l]:
                             rnd_dist[l] = dist_i
