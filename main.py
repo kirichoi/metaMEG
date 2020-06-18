@@ -43,7 +43,7 @@ if __name__ == '__main__':
         # Number of generations
         n_gen = 1000
         # Size of output ensemble
-        ens_size = 100
+        ens_size = 150
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -100,10 +100,10 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = True
         # Path to save the output
-        EXPORT_PATH = './USE/output_sauro_demo_2'
+        EXPORT_PATH = './USE/output_sauro_demo'
         
         # Flag to run algorithm
-        RUN = False
+        RUN = True
         
 
 #%%    
@@ -133,8 +133,8 @@ if __name__ == '__main__':
         realBoundaryIds = realRR.getBoundarySpeciesIds()
         allIds = realRR.getFloatingSpeciesIds() + realRR.getBoundarySpeciesIds()
         # allIds.sort()
-        realFloatingIdsInd = np.searchsorted(allIds, realFloatingIds)
-        realBoundaryIdsInd = np.searchsorted(allIds, realBoundaryIds)
+        realFloatingIdsInd = np.arange(realNumFloating)#np.searchsorted(allIds, realFloatingIds)
+        realBoundaryIdsInd = np.arange(realNumFloating, realNumFloating+realNumBoundary)#np.searchsorted(allIds, realBoundaryIds)
         realFloatingVal = realRR.getFloatingSpeciesConcentrations()#[np.argsort(realRR.getFloatingSpeciesIds())]
         realBoundaryVal = realRR.getBoundarySpeciesConcentrations()#[np.argsort(realRR.getBoundarySpeciesIds())]
         realGlobalParameterIds = realRR.getGlobalParameterIds()
