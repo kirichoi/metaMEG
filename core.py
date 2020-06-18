@@ -44,7 +44,7 @@ def f1(k_list, *args):
             # objCCC = objCCC[:,np.argsort(objCCC_col)]
             # objCCC = objCCC[np.ix_(np.argsort(objCCC.rownames), np.argsort(objCCC.colnames))]
             
-            dist_obj = distfunc1(args[1], objCC)
+            dist_obj = distfunc1(args[1], objCCC)
     except:
         countf += 1
         dist_obj = 10000
