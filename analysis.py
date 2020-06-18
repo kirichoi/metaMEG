@@ -154,14 +154,14 @@ def selectWithKernalDensity(dist_top):
     
     kde_xarr = np.linspace(0, np.max(dist_top), int(np.max(dist_top)*10))[:, np.newaxis]
     
-    kde = neighbors.KernelDensity(kernel='gaussian', bandwidth=0.3).fit(dist_top_reshape)
+    kde = neighbors.KernelDensity(kernel='gaussian', bandwidth=0.01).fit(dist_top_reshape)
     
     log_dens = kde.score_samples(kde_xarr)
     
     minInd = signal.argrelextrema(log_dens, np.less)
     
     if len(minInd[0]) == 0:
-        minInd = np.array([[len(dist_top) - 1]])
+        minInd = np.array([[len(kde_xarr) - 1]])
 
     kde_idx = (np.abs(dist_top - kde_xarr[minInd[0][0]])).argmin()
     
