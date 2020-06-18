@@ -35,13 +35,13 @@ if __name__ == '__main__':
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
         # modelType = 'FFL_m_i'
-        modelType = r'D:\Archive\OneDrive\Test Models\SBML Models\metaMEG_test.xml'
+        modelType = r'D:\Archive\OneDrive\Test Models\SBML Models\metaMEG_test_mod.xml'
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 500
+        n_gen = 1000
         # Size of output ensemble
         ens_size = 100
         # Number of models passed on the next generation without mutation
@@ -63,6 +63,7 @@ if __name__ == '__main__':
         # Maximum iteration allowed for optimizer
         optiMaxIter = 100
         optiTol = 1.
+        optiATol = 1.
         optiPolish = False
         FLUX = False
         workers = 1
@@ -99,7 +100,7 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = True
         # Path to save the output
-        EXPORT_PATH = './USE/output_sauro_demo'
+        EXPORT_PATH = './USE/output_sauro_demo_2'
         
         # Flag to run algorithm
         RUN = False
