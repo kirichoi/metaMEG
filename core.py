@@ -19,7 +19,7 @@ import copy
 def distfunc1(CC1, CC2, creg, nr):
     d1 = np.linalg.norm(CC1 - CC2)
     d2 = np.exp(np.divide(np.sum(np.not_equal(np.sign(np.array(CC1)), np.sign(np.array(CC2)))), np.size(CC1)))
-    d3 = 0 if max(creg, round(nr/10)) == round(nr/10) else np.exp(creg/nr)
+    d3 = 1 if max(creg, nr*0.2, 3) == max(nr*0.2, 3) else np.exp(creg/nr)
     
     return d1*d2*d3
 
