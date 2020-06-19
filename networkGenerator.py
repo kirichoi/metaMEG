@@ -29,15 +29,15 @@ class RLP:
     Inhibactiv = 0.01
 
 
-def pickReactionType(preg=None, remove=None):
+def pickReactionType(remove=None):
 
     if remove != None:
         if remove == RegulationType.DEFAULT:
-            preg = max(0, preg-0.5) 
-            Inhib = 0.48*(1-preg) #RLP.Inhib + RLP.Default/3
-            Activ = 0.48*(1-preg) #RLP.Activ + RLP.Default/3
-            Inhibactiv = 0.02*(1-preg)
-            Default = 1 - Inhib - Activ - Inhibactiv
+            # preg = max(0, preg-0.3) 
+            Inhib = RLP.Inhib + RLP.Default/2.1 #0.48*(1-preg)
+            Activ = RLP.Activ + RLP.Default/2.1 #0.48*(1-preg)
+            # Inhibactiv = 0.02*(1-preg)
+            Default = 0 #1 - Inhib - Activ - Inhibactiv
         elif remove == RegulationType.INHIBITION:
             Default = RLP.Default + RLP.Inhib/3
             Inhib = 0
@@ -94,7 +94,7 @@ def generateReactionList(Parameters):
                 inhib_id = []
                 regType = RegulationType.DEFAULT
             else:
-                inhib_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.8, 0.19, 0.01]))).tolist()
+                inhib_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.89, 0.1, 0.01]))).tolist()
         elif regType == RegulationType.ACTIVATION:
             inhib_id = []
             delList = np.concatenate([rct_id, prd_id])
@@ -104,7 +104,7 @@ def generateReactionList(Parameters):
                 act_id = []
                 regType = RegulationType.DEFAULT
             else:
-                act_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.8, 0.19, 0.01]))).tolist()
+                act_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.89, 0.1, 0.01]))).tolist()
         else:
             delList = np.concatenate([rct_id, prd_id])
             delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
@@ -143,8 +143,8 @@ def generateMutation(Parameters, rl, model):
     rct_id = np.array(reactionList[r_idx][3])[:,1]
     prd_id = np.array(reactionList[r_idx][4])[:,1]
     
-    preg = np.divide(np.count_nonzero(np.array(reactionList)[:,1]), Parameters.nr)
-    regType = pickReactionType(preg, reactionList[r_idx][1])
+    # preg = np.divide(np.count_nonzero(np.array(reactionList)[:,1]), Parameters.nr)
+    regType = pickReactionType(reactionList[r_idx][1])
     
     if regType == RegulationType.DEFAULT:
         act_id = []
@@ -158,7 +158,7 @@ def generateMutation(Parameters, rl, model):
             inhib_id = []
             regType = RegulationType.DEFAULT
         else:
-            inhib_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.8, 0.19, 0.01]))).tolist()
+            inhib_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.89, 0.1, 0.01]))).tolist()
     elif regType == RegulationType.ACTIVATION:
         inhib_id = []
         delList = np.concatenate([rct_id, prd_id])
@@ -168,7 +168,7 @@ def generateMutation(Parameters, rl, model):
             act_id = []
             regType = RegulationType.DEFAULT
         else:
-            act_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.8, 0.19, 0.01]))).tolist()
+            act_id = np.unique(np.random.choice(cList, size=np.random.choice([1,2,3], p=[0.89, 0.1, 0.01]))).tolist()
     else:
         delList = np.concatenate([rct_id, prd_id])
         delList = np.unique(np.append(delList, Parameters.realBoundaryIdsInd))
