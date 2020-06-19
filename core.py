@@ -16,11 +16,12 @@ import time
 import copy
 
 
-def distfunc1(CC1, CC2):
+def distfunc1(CC1, CC2, creg, nr):
     d1 = np.linalg.norm(CC1 - CC2)
     d2 = np.exp(np.divide(np.sum(np.not_equal(np.sign(np.array(CC1)), np.sign(np.array(CC2)))), np.size(CC1)))
+    d3 = 0 if max(creg, round(nr/10)) == round(nr/10) else np.exp(creg/nr)
     
-    return d1*d2
+    return d1*d2*d3
 
 
 def f1(k_list, *args):
@@ -281,6 +282,8 @@ def initialize(Parameters):
                     # concCC_i = concCC_i[np.argsort(concCC_i_row)]
                     # concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
                     
+                    creg = np.count_nonzero(np.array(rl)[:,1])
+                    
                     if Parameters.FLUX:
                         # flux_i = flux_i[np.argsort(concCC_i_col)]
                     
@@ -291,7 +294,7 @@ def initialize(Parameters):
                                  (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
                                                           np.sign(np.array(flux_i)))))))
                     else:
-                        dist_i = distfunc1(Parameters.realConcCC, concCC_i)
+                        dist_i = distfunc1(Parameters.realConcCC, concCC_i, creg, Parameters.nr)
                     
                     ens_dist[numGoodModels] = dist_i
                     r.reset()
@@ -502,6 +505,8 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                         # concCC_i = concCC_i[np.argsort(concCC_i_row)]
                         # concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
                         
+                        creg = np.count_nonzero(np.array(rl)[:,1])
+                        
                         if Parameters.FLUX:
                             # flux_i = flux_i[np.argsort(concCC_i_col)]
                         
@@ -512,7 +517,7 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                                      (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)),
                                                               np.sign(np.array(flux_i)))))))
                         else:
-                            dist_i = distfunc1(Parameters.realConcCC, concCC_i)
+                            dist_i = distfunc1(Parameters.realConcCC, concCC_i, creg, Parameters.nr)
                         
                         if dist_i < listdist[m]:
                             eval_dist[m] = dist_i
@@ -724,6 +729,8 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                         # concCC_i = concCC_i[np.argsort(concCC_i_row)]
                         # concCC_i = concCC_i[:,np.argsort(concCC_i_col)]
                         
+                        creg = np.count_nonzero(np.array(rl)[:,1])
+                        
                         if Parameters.FLUX:
                             # flux_i = flux_i[np.argsort(concCC_i_col)]
                         
@@ -734,7 +741,7 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                                      (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
                                                               np.sign(np.array(flux_i)))))))
                         else:
-                            dist_i = distfunc1(Parameters.realConcCC, concCC_i)
+                            dist_i = distfunc1(Parameters.realConcCC, concCC_i, creg, Parameters.nr)
                             
                         if dist_i < listDist[l]:
                             rnd_dist[l] = dist_i
