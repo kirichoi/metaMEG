@@ -535,7 +535,7 @@ def generateKnownReactionListFromAntimony(antStr):
         mod_type.append(mod_type_temp)
         
         # In case all products are in rate law, assume it is a reversible reaction
-        if all(ext in str(n) for ext in prd[ml]):
+        if all(ext in str(n) for ext in prd[ml]) and all(ext in prd[ml] for ext in str(n)):
             r_type.append('reversible')
         else:
             r_type.append('irreversible')
