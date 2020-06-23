@@ -130,13 +130,13 @@ def plotDistanceHistogram(ens_dist, nbin=25, SAVE_PATH=None):
     plt.show()
 
 
-def plotDistanceHistogramWithKDE(dist_top, kde_xarr, minInd, nbin=40, SAVE_PATH=None):
+def plotDistanceHistogramWithKDE(dist_top, minInd, nbin=40, SAVE_PATH=None):
     """
     """
     
     fig = plt.figure(figsize=(10, 6))
     hist = plt.hist(dist_top, bins=nbin, density=True)
-    plt.vlines(kde_xarr[minInd[0][0]], 0, np.max(hist[0]), linestyles='dashed')
+    plt.vlines(dist_top[minInd[0]], 0, np.max(hist[0]), linestyles='dashed')
     plt.xlabel("Distance", fontsize=15)
     plt.ylabel("Normalized Frequency", fontsize=15)
     plt.xticks(fontsize=15)
@@ -216,13 +216,14 @@ def plotNetworkComparison(path1, path2, title=None, scale=1.):
     ax[0].set_title(title[0], fontsize=15)
     net1 = npl.Network(path1)
     net1.customAxis = ax[0]
-    net1.scale=scale
+    net1.scale = scale
+    
     net1.draw()
     ax[1].axis('off')
     ax[1].set_title(title[1], fontsize=15)
     net2 = npl.Network(path2)
     net2.customAxis = ax[1]
-    net1.scale=scale
+    net1.scale = scale
     net2.draw()
     
     

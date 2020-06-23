@@ -285,7 +285,7 @@ if __name__ == '__main__':
         
         #%%
         # Collect models
-        minInd, log_dens, kde_xarr, kde_idx = analysis.selectWithKernalDensity(dist_top)
+        minInd, log_dens = analysis.selectWithKernalDensity(dist_top)
 
     #%%
         EXPORT_PATH = os.path.abspath(os.path.join(os.getcwd(), Parameters.EXPORT_PATH))
@@ -317,12 +317,11 @@ if __name__ == '__main__':
             # Distance histogram with KDE
             if Parameters.SAVE_PLOT:
                 pt.plotDistanceHistogramWithKDE(dist_top, 
-                                                kde_xarr, 
                                                 minInd, 
                                                 SAVE_PATH=os.path.join(EXPORT_PATH, 
                                                                        'images/distance_hist_w_KDE.pdf'))
             else:
-                pt.plotDistanceHistogramWithKDE(dist_top, log_dens, minInd)
+                pt.plotDistanceHistogramWithKDE(dist_top, minInd)
             
             if Parameters.PLOT_NETWORK:
                 pt.plotNetworkComparison(Parameters.realModel, model_top[0], scale=1)
@@ -337,8 +336,8 @@ if __name__ == '__main__':
                 model_col = model_top
                 dist_col = dist_top
             else:
-                model_col = model_top[:kde_idx]
-                dist_col = dist_top[:kde_idx]
+                model_col = model_top[:minInd[0]]
+                dist_col = dist_top[:minInd[0]]
             ioutils.exportOutputs(model_col, 
                                   dist_col, 
                                   [best_dist, avg_dist, med_dist, top5_dist], 

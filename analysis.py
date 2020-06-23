@@ -152,21 +152,19 @@ def selectWithKernalDensity(dist_top):
 
     dist_top_reshape = dist_top.reshape((len(dist_top),1))
     
-    kde_xarr = np.linspace(0, np.max(dist_top), int(np.max(dist_top)*10))[:, np.newaxis]
+    kde_xarr = np.linspace(np.min(dist_top), np.max(dist_top), len(dist_top))[:, np.newaxis]
     
     kde = neighbors.KernelDensity(kernel='gaussian', 
-                                  bandwidth=(np.max(dist_top)-np.min(dist_top))/1000).fit(dist_top_reshape)
+                                  bandwidth=(np.max(dist_top)-np.min(dist_top))/100).fit(dist_top_reshape)
     
     log_dens = kde.score_samples(kde_xarr)
     
-    minInd = signal.argrelextrema(log_dens, np.less)
+    minInd = signal.argrelextrema(log_dens, np.less)[0]
     
-    if len(minInd[0]) == 0:
-        minInd = np.array([[len(kde_xarr) - 1]])
+    if len(minInd) == 0:
+        minInd = np.array([len(dist_top) - 1])
 
-    kde_idx = (np.abs(dist_top - kde_xarr[minInd[0][0]])).argmin()
-    
-    return minInd, log_dens, kde_xarr, kde_idx
+    return minInd, log_dens
 
     
 def testModelAnalysis(realModel):
