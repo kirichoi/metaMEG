@@ -35,15 +35,15 @@ if __name__ == '__main__':
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
         # modelType = 'FFL_m_i'
-        modelType = r'D:\Archive\OneDrive\Test Models\SBML Models\metaMEG_test_mod.xml'
+        modelType = r'D:\Archive\OneDrive\Models\SBML Models\sauro_demo_mod_irrev.xml'
         
         
         # General settings ====================================================
         
         # Number of generations
-        n_gen = 1000
+        n_gen = 500
         # Size of output ensemble
-        ens_size = 150
+        ens_size = 100
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = True
         # Path to save the output
-        EXPORT_PATH = './USE/output_sauro_demo'
+        EXPORT_PATH = './USE/output_sauro_demo_irrev'
         
         # Flag to run algorithm
         RUN = True
@@ -240,31 +240,31 @@ if __name__ == '__main__':
         
         # TODO: Remove for loop
         for n in Parameters.n_range:
-            minind = np.argsort(ens_dist)[:Parameters.pass_size]
-            tarind = np.delete(np.arange(Parameters.ens_size), minind)
-            mut_p = 1/ens_dist[tarind]/np.sum(1/ens_dist[tarind])
-            mut_ind = np.random.choice(tarind, size=Parameters.mut_size-Parameters.pass_size, 
+            minidx = np.argsort(ens_dist)[:Parameters.pass_size]
+            taridx = np.delete(np.arange(Parameters.ens_size), minidx)
+            mut_p = 1/ens_dist[taridx]/np.sum(1/ens_dist[taridx])
+            mutidx = np.random.choice(taridx, size=Parameters.mut_size-Parameters.pass_size, 
                                                replace=False, p=mut_p)
-            mut_ind = np.append(mut_ind, minind)
-            mut_ind_inv = np.setdiff1d(np.arange(Parameters.ens_size), mut_ind)
+            mutidx = np.append(mutidx, minidx)
+            mutidx_inv = np.setdiff1d(np.arange(Parameters.ens_size), mutidx)
             
             eval_dist, eval_model, eval_rl, rl_track = core.mutate_and_evaluate(Parameters,
-                                                                      ens_model[mut_ind], 
-                                                                      ens_dist[mut_ind], 
-                                                                      ens_rl[mut_ind],
+                                                                      ens_model[mutidx], 
+                                                                      ens_dist[mutidx], 
+                                                                      ens_rl[mutidx],
                                                                       rl_track)
-            ens_model[mut_ind] = eval_model
-            ens_dist[mut_ind] = eval_dist
-            ens_rl[mut_ind] = eval_rl
+            ens_model[mutidx] = eval_model
+            ens_dist[mutidx] = eval_dist
+            ens_rl[mutidx] = eval_rl
             
             rnd_dist, rnd_model, rnd_rl, rl_track = core.random_gen(Parameters,
-                                                          ens_model[mut_ind_inv], 
-                                                          ens_dist[mut_ind_inv], 
-                                                          ens_rl[mut_ind_inv],
+                                                          ens_model[mutidx_inv], 
+                                                          ens_dist[mutidx_inv], 
+                                                          ens_rl[mutidx_inv],
                                                           rl_track)
-            ens_model[mut_ind_inv] = rnd_model
-            ens_dist[mut_ind_inv] = rnd_dist
-            ens_rl[mut_ind_inv] = rnd_rl
+            ens_model[mutidx_inv] = rnd_model
+            ens_dist[mutidx_inv] = rnd_dist
+            ens_rl[mutidx_inv] = rnd_rl
             
             dist_top_ind = np.argsort(ens_dist)
             dist_top = ens_dist[dist_top_ind]
