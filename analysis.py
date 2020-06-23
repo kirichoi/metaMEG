@@ -154,7 +154,8 @@ def selectWithKernalDensity(dist_top):
     
     kde_xarr = np.linspace(0, np.max(dist_top), int(np.max(dist_top)*10))[:, np.newaxis]
     
-    kde = neighbors.KernelDensity(kernel='gaussian', bandwidth=0.01).fit(dist_top_reshape)
+    kde = neighbors.KernelDensity(kernel='gaussian', 
+                                  bandwidth=(np.max(dist_top)-np.min(dist_top))/1000).fit(dist_top_reshape)
     
     log_dens = kde.score_samples(kde_xarr)
     
