@@ -215,6 +215,7 @@ def plotNetworkComparison(path1, path2, title=None, scale=1.):
     ax[0].axis('off')
     ax[0].set_title(title[0], fontsize=15)
     net1 = npl.Network(path1)
+    pos1 = net1.getLayout()
     net1.customAxis = ax[0]
     net1.scale = scale
     
@@ -222,6 +223,7 @@ def plotNetworkComparison(path1, path2, title=None, scale=1.):
     ax[1].axis('off')
     ax[1].set_title(title[1], fontsize=15)
     net2 = npl.Network(path2)
+    net2.pos = pos1
     net2.customAxis = ax[1]
     net1.scale = scale
     net2.draw()
