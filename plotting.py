@@ -215,18 +215,54 @@ def plotNetworkComparison(path1, path2, title=None, scale=1.):
     ax[0].axis('off')
     ax[0].set_title(title[0], fontsize=15)
     net1 = npl.Network(path1)
-    pos1 = net1.getLayout()
     net1.customAxis = ax[0]
     net1.scale = scale
-    
+    pos1 = net1.getLayout()
     net1.draw()
+    
     ax[1].axis('off')
     ax[1].set_title(title[1], fontsize=15)
     net2 = npl.Network(path2)
-    net2.pos = pos1
     net2.customAxis = ax[1]
-    net1.scale = scale
+    net2.scale = scale
+    net2.setLayout(pos1)
     net2.draw()
     
     
+def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25):
+    """
+    Plot two network diagrams side-by-side
+    
+    :param path: list of path or Antimony string of a model
+    :param scale: diagram scale
+    """
+    
+    import netplotlib as npl
+    
+    if title != None:
+        assert(len(title) == 2)
+    else:
+        title = ['Original', 'Selected Output']
+    
+    fig, ax = plt.subplots(ncols=2, figsize=(22,12))
+    ax[0].axis('off')
+    ax[0].set_title(title[0], fontsize=15)
+    net1 = npl.Network(path1)
+    net1.customAxis = ax[0]
+    net1.scale = scale
+    net1.tightLayout = True
+    pos1 = net1.getLayout()
+    net1.draw()
+    
+    ax[1].axis('off')
+    ax[1].set_title(title[1], fontsize=15)
+    net2 = npl.NetworkEnsemble(path2)
+    net2.customAxis = ax[1]
+    net2.edgelw = 1
+    net2.scale = scale
+    net2.plottingThreshold = threshold
+    net2.tightLayout = True
+    net2.disableReactionEdgeLabel=True
+    net2.setLayout(pos1)
+    net2.drawWeightedDiagram()
     
