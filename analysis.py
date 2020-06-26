@@ -14,12 +14,6 @@ import plotting as pt
 import networkx as nx
 
 
-def getWeights(dist):
-    """
-    """
-
-
-
 def ensembleFluxControlCoefficient(model_col):
     """
     """
@@ -145,7 +139,6 @@ def selectWithKernalDensity(dist_top):
     Model selection rountine that returns a list of models based on the output
     of kernal density estimation.
     
-    :param model_top: list of models sorted according to corresponding distances
     :param dist_top: list of sorted distances
     """
     
@@ -166,12 +159,6 @@ def selectWithKernalDensity(dist_top):
 
     return minInd, log_dens
 
-    
-def testModelAnalysis(realModel):
-    """
-    """
-    pass
-    
 
 
 

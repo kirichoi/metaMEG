@@ -19,7 +19,7 @@ def plotAllProgress(listOfDistances, labels=None, SAVE_PATH=None):
     
     :param listOfDistances: 2D array of distances
     :param labels: list of strings to use as labels
-    :param SAVE: flag for saving the output
+    :param SAVE_PATH: path to save plot
     """
     
     fig = plt.figure(figsize=(16, 6))
@@ -45,7 +45,7 @@ def plotProgress(distance, SAVE_PATH=None):
     
     :param distance: array of distances
     :param model_type: reference model type, e.g. 'FFL', 'Linear', etc.
-    :param SAVE: flag for saving the output
+    :param SAVE_PATH: path to save plot
     """
     
     fig = plt.figure(figsize=(16, 6))
@@ -70,7 +70,7 @@ def plotResidual(realModel, ens_model, ens_dist, SAVE_PATH=None):
     :param ens_model: model ensemble
     :param ens_dist: model distances
     :param model_typ: reference model type
-    :param SAVE: flag for saving the output
+    :param SAVE_PATH: path to save plot
     """
     
     try:
@@ -107,11 +107,6 @@ def plotResidual(realModel, ens_model, ens_dist, SAVE_PATH=None):
     plt.show()
     
     
-def plotHistogram():
-    """
-    """
-    
-    
 def plotDistanceHistogram(ens_dist, nbin=25, SAVE_PATH=None):
     """
     """
@@ -132,6 +127,14 @@ def plotDistanceHistogram(ens_dist, nbin=25, SAVE_PATH=None):
 
 def plotDistanceHistogramWithKDE(dist_top, minInd, nbin=40, SAVE_PATH=None):
     """
+    Plot histogram of collected model distances with cutoff using kernel density
+    estimation to form an ensemble visualized
+    
+    :param dist_top: list of distances
+    :param minInd: list of extrema
+    :param nbin: number of bins
+    :param SAVE_PATH: path to save plot
+    
     """
     
     fig = plt.figure(figsize=(10, 6))
@@ -197,11 +200,13 @@ def plotNetworkEnsemble(path, index=None, threshold=0., scale=1.5):
 
 def plotNetworkComparison(path1, path2, title=None, scale=1., SAVE_PATH=None):
     """
-    Plot two network diagrams side-by-side
+    Plot real network diagram and best network diagram side-by-side
     
     :param path1: path or Antimony string of a model
     :param path2: path or Antimony string of a model
+    :param title: list of custom titles for each diagram
     :param scale: diagram scale
+    :param SAVE_PATH: path to save diagram
     """
     
     import netplotlib as npl
@@ -237,10 +242,14 @@ def plotNetworkComparison(path1, path2, title=None, scale=1., SAVE_PATH=None):
     
 def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25, SAVE_PATH=None):
     """
-    Plot two network diagrams side-by-side
+    Plot real network diagram and ensemble weighted network diagram side-by-side
     
-    :param path: list of path or Antimony string of a model
+    :param path1: path or Antimony string of a model
+    :param path2: list of paths or Antimony strings of models
+    :param title: list of custom titles for each diagram
     :param scale: diagram scale
+    :param threshold: plotting threshold for edges
+    :param SAVE_PATH: path to save diagram
     """
     
     import netplotlib as npl
@@ -248,7 +257,7 @@ def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25, SAVE
     if title != None:
         assert(len(title) == 2)
     else:
-        title = ['Original', 'Selected Output']
+        title = ['Original', 'Ensemble']
     
     fig, ax = plt.subplots(ncols=2, figsize=(22,12))
     ax[0].axis('off')

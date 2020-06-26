@@ -11,7 +11,12 @@ import pandas as pd
 
 def exportSettings(Parameters, path=None):
     """
+    Export settings to specified path
+    
+    :param Parameters: Parameters object
+    :param path: path to save file
     """
+    
     if path:
         outputdir = path
     else:
@@ -43,6 +48,13 @@ def exportOutputs(models, dists, dist_list, Parameters, time, rl_track, path=Non
     """
     Export all outputs to specified path
     
+    :param models: list of collected models
+    :param dists: list of collected model distances
+    :param dist_list: list of best, average, median, and top 5 distances 
+    :param Parameters: Parameters object
+    :param time: excution time
+    :param rl_track: list of analyzed topologies
+    :param path: path to save file
     """
     
     if path:
@@ -107,7 +119,7 @@ def importModels(modelsPath):
 
 def importData(dataPath):
     """
-    Read data encoded in csv.
+    Read data encoded in csv
     
     :param dataPath: path to a csv file
     :returns: DataFrame
