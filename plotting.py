@@ -195,7 +195,7 @@ def plotNetworkEnsemble(path, index=None, threshold=0., scale=1.5):
     net.drawWeightedDiagram()
 
 
-def plotNetworkComparison(path1, path2, title=None, scale=1.):
+def plotNetworkComparison(path1, path2, title=None, scale=1., SAVE_PATH=None):
     """
     Plot two network diagrams side-by-side
     
@@ -228,8 +228,14 @@ def plotNetworkComparison(path1, path2, title=None, scale=1.):
     net2.setLayout(pos1)
     net2.draw()
     
+    if SAVE_PATH is not None:
+        if os.path.splitext(SAVE_PATH)[1] == '':
+            plt.savefig(os.path.join(SAVE_PATH, 'images/net_comp_real_best.pdf'), bbox_inches='tight')
+        else:
+            plt.savefig(SAVE_PATH, bbox_inches='tight')
     
-def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25):
+    
+def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25, SAVE_PATH=None):
     """
     Plot two network diagrams side-by-side
     
@@ -265,4 +271,10 @@ def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25):
     net2.disableReactionEdgeLabel=True
     net2.setLayout(pos1)
     net2.drawWeightedDiagram()
+    
+    if SAVE_PATH is not None:
+        if os.path.splitext(SAVE_PATH)[1] == '':
+            plt.savefig(os.path.join(SAVE_PATH, 'images/net_comp_real_ensemble.pdf'), bbox_inches='tight')
+        else:
+            plt.savefig(SAVE_PATH, bbox_inches='tight')
     

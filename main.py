@@ -318,14 +318,20 @@ if __name__ == '__main__':
             if Parameters.SAVE_PLOT:
                 pt.plotDistanceHistogramWithKDE(dist_top, 
                                                 minInd, 
-                                                SAVE_PATH=os.path.join(EXPORT_PATH, 
-                                                                       'images/distance_hist_w_KDE.pdf'))
+                                                SAVE_PATH=os.path.join(EXPORT_PATH, 'images/distance_hist_w_KDE.pdf'))
             else:
                 pt.plotDistanceHistogramWithKDE(dist_top, minInd)
             
             if Parameters.PLOT_NETWORK:
-                pt.plotNetworkComparison(Parameters.realModel, model_top[0], scale=1)
-                pt.plotWeightedNetwork(Parameters.realModel, model_top[:minInd[0]], scale=2., threshold=0.25)
+                pt.plotNetworkComparison(Parameters.realModel, 
+                                         model_top[0], 
+                                         scale=1,
+                                         SAVE_PATH=os.path.join(EXPORT_PATH, 'images/net_comp_real_best.pdf'))
+                pt.plotWeightedNetwork(Parameters.realModel, 
+                                       model_top[:minInd[0]], 
+                                       scale=2., 
+                                       threshold=0.25,
+                                       SAVE_PATH=os.path.join(EXPORT_PATH, 'images/net_comp_real_ensemble.pdf'))
                 
             
     #%%
