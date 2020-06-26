@@ -34,8 +34,8 @@ if __name__ == '__main__':
         # Test models =========================================================
         
         # 'FFL', 'Linear', 'Nested', 'Branched', 'Central'
-        # modelType = 'FFL_m_i'
-        modelType = r'D:\Archive\OneDrive\Models\SBML Models\sauro_demo_mod_irrev.xml'
+        # model = 'FFL_m_i'
+        model = r'D:\Archive\OneDrive\Models\SBML Models\sauro_demo_mod_irrev.xml'
         
         
         # General settings ====================================================
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         # Number of generations
         n_gen = 500
         # Size of output ensemble
-        ens_size = 100
+        ens_size = 200
         # Number of models passed on the next generation without mutation
         pass_size = int(ens_size/10)
         # Number of models to mutate
@@ -69,9 +69,9 @@ if __name__ == '__main__':
         workers = 1
         
         
-        # Random settings =====================================================
+        # RNG and noise settings ==============================================
         
-        # random seed
+        # Random seed
         r_seed = 123123
         # Flag for adding Gaussian noise to steady-state and control coefficiant values
         NOISE = False
@@ -93,16 +93,16 @@ if __name__ == '__main__':
         
         # Data settings =======================================================
         
-        # Flag for collecting models
-        EXPORT_ALL_MODELS = True
         # Flag for saving collected models
         EXPORT_OUTPUT = True
+        # Flag for collecting all models
+        EXPORT_ALL_MODELS = True
         # Flag for saving current settings
         EXPORT_SETTINGS = True
-        # Path to save the output
-        EXPORT_PATH = './USE/output_sauro_demo_irrev'
+        # Path to the output
+        EXPORT_PATH = './USE/output_sauro_demo_irrev_2'
         
-        # Flag to run algorithm
+        # Flag to run the algorithm
         RUN = True
         
 
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 #        roadrunner.Config.setValue(roadrunner.Config.STEADYSTATE_APPROX_TOL, 1e-3)
         
         # Using one of the test models
-        realModel = ioutils.testModels(modelType)
+        realModel = ioutils.testModels(model)
         
         try:
             realRR = te.loada(realModel)
@@ -325,6 +325,7 @@ if __name__ == '__main__':
             
             if Parameters.PLOT_NETWORK:
                 pt.plotNetworkComparison(Parameters.realModel, model_top[0], scale=1)
+                pt.plotWeightedNetwork(Parameters.realModel, model_top[:minInd[0]], scale=2., threshold=0.25)
                 
             
     #%%
