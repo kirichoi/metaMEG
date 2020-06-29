@@ -257,7 +257,7 @@ def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25, SAVE
     if title != None:
         assert(len(title) == 2)
     else:
-        title = ['Original', 'Ensemble']
+        title = ['Original', 'Ensemble of ' + str(len(path2)) + ' Models']
     
     fig, ax = plt.subplots(ncols=2, figsize=(22,12))
     ax[0].axis('off')
@@ -273,7 +273,7 @@ def plotWeightedNetwork(path1, path2, title=None, scale=1., threshold=0.25, SAVE
     ax[1].set_title(title[1], fontsize=15)
     net2 = npl.NetworkEnsemble(path2)
     net2.customAxis = ax[1]
-    net2.edgelw = 1
+    net2.edgelw = 2
     net2.scale = scale
     net2.plottingThreshold = threshold
     net2.tightLayout = True

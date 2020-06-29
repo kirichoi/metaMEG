@@ -356,6 +356,7 @@ if __name__ == '__main__':
                 dist_col = dist_top[:minInd[0]]
             ioutils.exportOutputs(model_col, 
                                   dist_col, 
+                                  minInd, 
                                   [best_dist, avg_dist, med_dist, top5_dist], 
                                   Parameters, 
                                   t2-t1, 

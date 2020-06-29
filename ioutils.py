@@ -44,7 +44,7 @@ def exportSettings(Parameters, path=None):
     outputtxt.close()
     
     
-def exportOutputs(models, dists, dist_list, Parameters, time, rl_track, path=None):
+def exportOutputs(models, dists, dist_list, minInd, Parameters, time, rl_track, path=None):
     """
     Export all outputs to specified path
     
@@ -83,6 +83,7 @@ def exportOutputs(models, dists, dist_list, Parameters, time, rl_track, path=Non
     outputtxt.writelines('No. of Generations: ' + str(Parameters.n_gen) + '\n')
     outputtxt.writelines('Ensemble Size: ' + str(Parameters.ens_size) + '\n')
     outputtxt.writelines('No. of Collected Models: ' + str(len(models)) + '\n')
+    outputtxt.writelines('Ensemble Size: ' + str(minInd[0]) + '\n')
     outputtxt.writelines('Run Time: ' + str(time) + ' s\n')
     outputtxt.writelines('No. Stoich. Analyzed: ' + str(len(rl_track)) + '\n')
     outputtxt.close()
