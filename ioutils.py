@@ -44,7 +44,7 @@ def exportSettings(Parameters, path=None):
     outputtxt.close()
     
     
-def exportOutputs(models, dists, dist_list, minInd, Parameters, time, rl_track, path=None):
+def exportOutputs(models, dists, minInd, dist_list, Parameters, time, rl_track, path=None):
     """
     Export all outputs to specified path
     
