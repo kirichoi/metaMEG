@@ -100,10 +100,10 @@ if __name__ == '__main__':
         # Flag for saving current settings
         EXPORT_SETTINGS = True
         # Path to the output
-        EXPORT_PATH = './USE/output_sauro_demo_irrev_2'
+        EXPORT_PATH = './USE/output_sauro_demo_irrev'
         
         # Flag to run the algorithm
-        RUN = True
+        RUN = False
         
 
 #%%    
@@ -148,16 +148,13 @@ if __name__ == '__main__':
         realRR.steadyState()
         realSteadyState = realRR.getFloatingSpeciesConcentrations()
         realSteadyStateRatio = np.divide(realSteadyState, np.min(realSteadyState))
-        if FLUX:
-            realFlux = realRR.getReactionRates()
+        realFlux = realRR.getReactionRates()
         realRR.reset()
         realRR.steadyState()
-        if FLUX:
-            realFluxCC = realRR.getScaledFluxControlCoefficientMatrix()
+        realFluxCC = realRR.getScaledFluxControlCoefficientMatrix()
         realConcCC = realRR.getScaledConcentrationControlCoefficientMatrix()
         
-        if FLUX:
-            realFluxCC[np.abs(realFluxCC) < 1e-12] = 0
+        realFluxCC[np.abs(realFluxCC) < 1e-12] = 0
         realConcCC[np.abs(realConcCC) < 1e-12] = 0
         
         # Ordering

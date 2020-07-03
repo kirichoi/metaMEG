@@ -16,12 +16,22 @@ import time
 import copy
 
 
-def distfunc1(CC1, CC2, creg, nr):
-    d1 = np.linalg.norm(CC1 - CC2)
-    d2 = np.exp(np.divide(np.sum(np.not_equal(np.sign(np.array(CC1)), np.sign(np.array(CC2)))), np.size(CC1)))
-    d3 = 1 if max(creg, nr*0.2, 3) == max(nr*0.2, 3) else np.exp(creg/nr)
+def distfunc1(Parameters, CC, creg):
+    d1 = np.linalg.norm(Parameters.realConcCC - CC)
+    d2 = np.exp(np.divide(np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), np.sign(np.array(CC)))), np.size(Parameters.realConcCC)))
+    d3 = 1 if max(creg, Parameters.nr*0.2, 3) == max(Parameters.nr*0.2, 3) else np.exp(creg/Parameters.nr)
     
     return d1*d2*d3
+
+
+def distfunc2(Parameters, CC, FC, ss, creg):
+    d1 = np.linalg.norm(Parameters.realConcCC - CC)
+    d2 = np.exp(np.divide(np.sum(np.not_equal(np.sign(np.array(Parameters.realConcCC)), np.sign(np.array(CC)))), np.size(Parameters.realConcCC)))
+    d3 = 1 if max(creg, Parameters.nr*0.2, 3) == max(Parameters.nr*0.2, 3) else np.exp(creg/Parameters.nr)
+    d4 = np.linalg.norm(Parameters.realFluxCC - FC)
+    d5 = np.linalg.norm(Parameters.realSteadyState - ss)
+    
+    return (d1+d4+d5)*d2*d3
 
 
 def f1(k_list, *args):
@@ -45,7 +55,7 @@ def f1(k_list, *args):
             # objCCC = objCCC[:,np.argsort(objCCC_col)]
             # objCCC = objCCC[np.ix_(np.argsort(objCCC.rownames), np.argsort(objCCC.colnames))]
             
-            dist_obj = distfunc1(args[1], objCCC)
+            dist_obj = distfunc1(args[1], objCCC, args[2])
     except:
         countf += 1
         dist_obj = 10000
@@ -147,7 +157,7 @@ def callbackF(X, convergence=0.):
 #                                                             seed=Parameters.r_seed)
 #             else:
 #                 res = scipy.optimize.differential_evolution(f1, 
-#                                                             args=(r, Parameters.realConcCC), 
+#                                                             args=(r, Parameters, creg), 
 #                                                             bounds=p_bound, 
 #                                                             maxiter=Parameters.optiMaxIter, 
 #                                                             tol=Parameters.optiTol,
@@ -267,14 +277,18 @@ def initialize(Parameters):
                 numBadModels += 1
             else:
                 concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
+                
                 if Parameters.FLUX:
+                    fluxCC_i = r.getScaledFluxControlCoefficientMatrix()
                     flux_i = r.getReactionRates()
     
                 if np.isnan(concCC_i).any():
                     numBadModels += 1
                 else:
                     concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                    
                     if Parameters.FLUX:
+                        fluxCC_i[np.abs(fluxCC_i) < 1e-12] = 0 # Set small values to zero
                         flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
                     
                     # concCC_i_row = concCC_i.rownames
@@ -294,7 +308,7 @@ def initialize(Parameters):
                                  (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
                                                           np.sign(np.array(flux_i)))))))
                     else:
-                        dist_i = distfunc1(Parameters.realConcCC, concCC_i, creg, Parameters.nr)
+                        dist_i = distfunc1(Parameters, concCC_i, creg)
                     
                     ens_dist[numGoodModels] = dist_i
                     r.reset()
@@ -488,7 +502,9 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                     eval_rl[m] = listrl[m]
                 else:
                     concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
+                    
                     if Parameters.FLUX:
+                        fluxCC_i = r.getScaledFluxControlCoefficientMatrix()
                         flux_i = r.getReactionRates()
                     
                     if np.isnan(concCC_i).any():
@@ -497,7 +513,9 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                         eval_rl[m] = listrl[m]
                     else:
                         concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                        
                         if Parameters.FLUX:
+                            fluxCC_i[np.abs(fluxCC_i) < 1e-12] = 0 # Set small values to zero
                             flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
                         
                         # concCC_i_row = concCC_i.rownames
@@ -517,7 +535,7 @@ def mutate_and_evaluate(Parameters, listantStr, listdist, listrl, rl_track):
                                      (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)),
                                                               np.sign(np.array(flux_i)))))))
                         else:
-                            dist_i = distfunc1(Parameters.realConcCC, concCC_i, creg, Parameters.nr)
+                            dist_i = distfunc1(Parameters, concCC_i, creg)
                         
                         if dist_i < listdist[m]:
                             eval_dist[m] = dist_i
@@ -712,7 +730,9 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                     rnd_rl[l] = listrl[l]
                 else:
                     concCC_i = r.getScaledConcentrationControlCoefficientMatrix()
+                    
                     if Parameters.FLUX:
+                        fluxCC_i = r.getScaledFluxControlCoefficientMatrix()
                         flux_i = r.getReactionRates()
                     
                     if np.isnan(concCC_i).any():
@@ -721,7 +741,9 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                         rnd_rl[l] = listrl[l]
                     else:
                         concCC_i[np.abs(concCC_i) < 1e-12] = 0 # Set small values to zero
+                        
                         if Parameters.FLUX:
+                            fluxCC_i[np.abs(fluxCC_i) < 1e-12] = 0 # Set small values to zero
                             flux_i[np.abs(flux_i) < 1e-12] = 0 # Set small values to zero
                         
                         # concCC_i_row = concCC_i.rownames
@@ -741,7 +763,7 @@ def random_gen(Parameters, listAntStr, listDist, listrl, rl_track):
                                      (1 + np.sum(np.not_equal(np.sign(np.array(Parameters.realFlux)), 
                                                               np.sign(np.array(flux_i)))))))
                         else:
-                            dist_i = distfunc1(Parameters.realConcCC, concCC_i, creg, Parameters.nr)
+                            dist_i = distfunc1(Parameters, concCC_i, creg)
                             
                         if dist_i < listDist[l]:
                             rnd_dist[l] = dist_i
