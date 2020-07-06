@@ -346,11 +346,12 @@ def generateReactionListFromAntimony(antStr):
         expression = kineticLaw[ml]
         n,d = sympy.fraction(expression)
         for ml_i in range(len(mod[ml])):
-            if n.has(mod[ml][ml_i]) and not d.has(mod[ml][ml_i]):
+            sym = sympy.symbols(mod[ml][ml_i])
+            if n.has(sym) and not d.has(sym):
                 mod_type_temp.append('activator')
-            elif d.has(mod[ml][ml_i]) and not n.has(mod[ml][ml_i]):
+            elif d.has(sym) and not n.has(sym):
                 mod_type_temp.append('inhibitor')
-            elif n.has(mod[ml][ml_i]) and d.has(mod[ml][ml_i]):
+            elif n.has(sym) and d.has(sym):
                 mod_type_temp.append('inhibitor_activator')
             else:
                 mod_type_temp.append('modifier')
@@ -524,11 +525,12 @@ def generateKnownReactionListFromAntimony(antStr):
         expression = kineticLaw[ml]
         n,d = sympy.fraction(expression)
         for ml_i in range(len(mod[ml])):
-            if n.has(mod[ml][ml_i]) and not d.has(mod[ml][ml_i]):
+            sym = sympy.symbols(mod[ml][ml_i])
+            if n.has(sym) and not d.has(sym):
                 mod_type_temp.append('activator')
-            elif d.has(mod[ml][ml_i]) and not n.has(mod[ml][ml_i]):
+            elif d.has(sym) and not n.has(sym):
                 mod_type_temp.append('inhibitor')
-            elif n.has(mod[ml][ml_i]) and d.has(mod[ml][ml_i]):
+            elif n.has(sym) and d.has(sym):
                 mod_type_temp.append('inhibitor_activator')
             else:
                 mod_type_temp.append('modifier')
